@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "957158933086",
+    "project_id": "plant-detection-7a03e",
+    "storage_bucket": "plant-detection-7a03e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:957158933086:android:8b5688a19594d3a0e7aacf",
+        "android_client_info": {
+          "package_name": "com.prokit.plant_detection"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5RCbfIgB4fwETFigEJXBByjUyj_68iN8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
