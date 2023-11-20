@@ -188,7 +188,9 @@ class _HDTakePhotoScreenState extends State<HDTakePhotoScreen> {
           child: AlertDialog(
             content: Row(
               children: <Widget>[
-                CircularProgressIndicator(), // Hiển thị vòng loading
+                CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                ), // // Hiển thị vòng loading
                 SizedBox(width: 20),
               ],
             ),

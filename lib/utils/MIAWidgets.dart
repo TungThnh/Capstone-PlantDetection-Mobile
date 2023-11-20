@@ -33,8 +33,8 @@ PreferredSizeWidget miaAppBar(BuildContext context) {
 
 PreferredSizeWidget miaFragmentAppBar(BuildContext context, String name, bool isMealFragment) {
   return AppBar(
-    toolbarHeight: 100,
-    title: Text(name, style: boldTextStyle(size: 24)).paddingOnly(top: 30, bottom: 20),
+    toolbarHeight: 80,
+    title: Center(child: Text(name, style: boldTextStyle(size: 24)).paddingOnly(top: 30, bottom: 20),),
     leadingWidth: 0,
     leading: SizedBox(),
     elevation: 0,

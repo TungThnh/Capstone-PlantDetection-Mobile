@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:nb_utils/nb_utils.dart';
 
+import '../providers/APIUrl.dart';
 import '../utils/MIAColors.dart';
 import 'HDViewResultScreen.dart';
 
@@ -20,7 +21,7 @@ class HDViewImageScreen extends StatefulWidget {
 class _HDViewImageScreenState extends State<HDViewImageScreen> {
   File? _image;
 
-  final apiUrl = 'https://f8fe-171-232-7-224.ngrok-free.app';
+  final apiUrl = APIUrl.getUrl();
 
   @override
   void initState() {
@@ -58,9 +59,6 @@ class _HDViewImageScreenState extends State<HDViewImageScreen> {
     var request = http.MultipartRequest(
         'POST', Uri.parse(apiUrl + '/api/predictions'));
     var path = _image?.path ?? '';
-    Map<String, String> headers = {
-      'Content-Type': 'multipart/form-data',
-    };
     request.files.add(
       await http.MultipartFile.fromPath(
         'image', // Tên trường tệp ảnh trên API
@@ -71,7 +69,6 @@ class _HDViewImageScreenState extends State<HDViewImageScreen> {
     var response = await request.send();
     if (response.statusCode == 200) {
       hideLoadingDialog(context);
-      print('Ảnh đã được gửi thành công.');
       var responseBody = await response.stream.bytesToString();
       Map<String, dynamic> data = json.decode(responseBody);
       Navigator.push(

@@ -15,6 +15,7 @@ import '../screens/MIASignInScreen.dart';
 import '../screens/HDUpdateProfileScreen.dart';
 import '../utils/MIAColors.dart';
 import '../utils/MIADataGenerator.dart';
+import '../utils/MIAWidgets.dart';
 
 class MIASettingsFragment extends StatefulWidget {
   const MIASettingsFragment({Key? key}) : super(key: key);
@@ -63,10 +64,12 @@ class _MIASettingsFragmentState extends State<MIASettingsFragment> {
     final currenUser = userProvider.currentUser;
     return Observer(builder: (context) {
       return Scaffold(
+        appBar: miaFragmentAppBar(context, 'Settings', false),
         body: SingleChildScrollView(
           child: Column(
             children: [
-              70.height,
+              Divider(height: 2, color: Colors.black),
+              20.height,
               Image.network('${currenUser?.avatarUrl}')
                   .cornerRadiusWithClipRRect(100),
               /*    Icon(Icons.account_circle_outlined, color: miaSecondaryColor, size: 100).onTap(() {

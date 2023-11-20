@@ -52,8 +52,12 @@ class _HDCameraFragmentState extends State<HDCameraFragment> {
       }
     }
     return Scaffold(
+      appBar: miaFragmentAppBar(context, 'Camera', false),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Divider(height: 2, color: Colors.black),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {

@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../main.dart';
+import '../providers/APIUrl.dart';
 import '../providers/UserProvider.dart';
 
 class MIASignInScreen extends StatelessWidget {
@@ -19,7 +20,7 @@ class MIASignInScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final apiUrl = 'https://f8fe-171-232-7-224.ngrok-free.app';
+    final apiUrl = APIUrl.getUrl();
     var currentUser;
 
     return Scaffold(
@@ -74,7 +75,6 @@ class MIASignInScreen extends StatelessWidget {
                           Map<String, dynamic> data = {'idToken': idToken};
 
                           var jsonBody = jsonEncode(data);
-
                           final response = await http.post(
                               Uri.parse(apiUrl + '/api/auth/google/student'),
                               headers: headers,
@@ -98,7 +98,6 @@ class MIASignInScreen extends StatelessWidget {
                               );
                               final Map<String, dynamic> data =
                                   json.decode(response.body);
-                              print(data);
                                currentUser = HDUserModel(
                                   id: data['id'] ?? '',
                                   firstName: data['firstName'] ?? '',
@@ -123,6 +122,8 @@ class MIASignInScreen extends StatelessWidget {
                           print('Error: $e');
                         }
                       }
+                    } else {
+                      hideLoadingDialog(context);
                     }
                   } catch (e) {
                     hideLoadingDialog(context);
@@ -132,7 +133,7 @@ class MIASignInScreen extends StatelessWidget {
                 style: ButtonStyle(
                   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                     RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(48.0), // Điều chỉnh giá trị theo ý muốn
+                      borderRadius: BorderRadius.circular(12.0), // Điều chỉnh giá trị theo ý muốn
                     ),
                   ),
                 ),
@@ -144,10 +145,10 @@ class MIASignInScreen extends StatelessWidget {
                 label: Text(
                   'Sign in with Google',
                   style: TextStyle(
-                    color: Colors.white, // Đặt màu cho văn bản
+                    color: Colors.black, // Đặt màu cho văn bản
                     fontSize: 20, // Đặt kích thước của văn bản (tuỳ chọn)
                     fontWeight:
-                        FontWeight.bold, // Đặt độ đậm của văn bản (tuỳ chọn)
+                    FontWeight.bold, // Đặt độ đậm của văn bản (tuỳ chọn)
                   ),
                 ),
               ),
@@ -253,7 +254,9 @@ class MIASignInScreen extends StatelessWidget {
           child: AlertDialog(
             content: Row(
               children: <Widget>[
-                CircularProgressIndicator(), // Hiển thị vòng loading
+                CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                ), // Hiển thị vòng loading
                 SizedBox(width: 20),
               ],
             ),

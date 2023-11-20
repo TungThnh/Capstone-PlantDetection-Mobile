@@ -6,6 +6,7 @@ class HDClassModel {
   final String code;
   final String description;
   final String createAt;
+  final String thumbnailUrl;
   final int numberOfMember;
   final String status;
   final HDManagerModel manager;
@@ -13,6 +14,7 @@ class HDClassModel {
   HDClassModel({
     required this.id,
     required this.name,
+    required this.thumbnailUrl,
     required this.code,
     required this.description,
     required this.createAt,
@@ -27,6 +29,7 @@ class HDClassModel {
       name: json['name'],
       code: json['code'],
       description: json['description'],
+      thumbnailUrl: json['thumbnailUrl'],
       createAt: json['createAt'],
       numberOfMember: json['numberOfMember'],
       status: json['status'],

@@ -1,8 +1,11 @@
 import 'dart:convert';
 
+import 'package:Detection/providers/APIUrl.dart';
+import 'package:Detection/screens/HDManageReportScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:Detection/models/HDUserModel.dart';
+import 'package:intl/intl.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:provider/provider.dart';
 
@@ -25,7 +28,7 @@ class _HDClassDetailScreenState extends State<HDClassDetailScreen> {
   List<HDUserModel> studentList = [];
   bool hasFetchedData = false;
   bool isMember = false;
-  final apiUrl = 'https://f8fe-171-232-7-224.ngrok-free.app';
+  final apiUrl = APIUrl.getUrl();
 
   @override
   void initState() {
@@ -38,16 +41,22 @@ class _HDClassDetailScreenState extends State<HDClassDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var nameController = TextEditingController(text: classModel!.name ?? '');
+    var nameController =
+        TextEditingController(text: classModel!.name ?? 'Name');
     var descriptionController =
-        TextEditingController(text: classModel?.description ?? '');
-    var createAtController =
-        TextEditingController(text: classModel?.createAt ?? '');
+        TextEditingController(text: classModel?.description ?? 'Description');
+    var createAtController = TextEditingController(
+      text: classModel?.createAt != null
+          ? DateFormat('dd-MM-yyyy')
+              .format(DateTime.parse(classModel!.createAt))
+          : 'CreateAt',
+    );
     var numberOfMemberController = TextEditingController(
         text: classModel?.numberOfMember.toString() ?? '0');
     var managerController =
-        TextEditingController(text: classModel?.manager.email ?? '');
-    var codeController = TextEditingController(text: classModel?.code ?? '');
+        TextEditingController(text: classModel?.manager.email ?? 'Manager');
+    var codeController =
+        TextEditingController(text: classModel?.code ?? 'Code');
 
     final userProvider = Provider.of<UserProvider>(context);
     final currentUser = userProvider.currentUser;
@@ -61,201 +70,359 @@ class _HDClassDetailScreenState extends State<HDClassDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        leading: TextButton(
-            onPressed: () {
-              finish(context);
-            },
-            child: Text('Cancel',
-                style: primaryTextStyle(color: miaPrimaryColor))),
-        leadingWidth: 80,
-        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios, color: miaPrimaryColor),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ).paddingSymmetric(horizontal: 8),
+        title: Padding(
+          padding: EdgeInsets.only(left: 96),
+          child: Text(
+            'Details',
+            style: TextStyle(
+              color: Colors.black, // Màu chữ
+              fontWeight: FontWeight.bold,
+              fontSize: 24.0, // Kích thước chữ
+            ),
+          ),
+        ),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Class Details',
-                style: boldTextStyle(color: miaSecondaryColor, size: 20)),
-            40.height,
-            Container(
-              padding: EdgeInsets.only(left: 16.0, right: 16.0),
-              // Điều chỉnh khoảng cách từ bên trái màn hình
-              child: TextFormField(
-                readOnly: true,
-                controller: codeController,
-                decoration: InputDecoration(
-                  labelText: 'Code',
-                  labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                  border: OutlineInputBorder(),
-                  //Thêm viền xung quanh TextFormField
-                  contentPadding: EdgeInsets.symmetric(vertical: 16.0),
-                  // Điều chỉnh khoảng cách đỉnh và đáy
-                  prefixIcon:
-                      Icon(Icons.qr_code), //Thêm biểu tượng trước trường nhập
+      body: SingleChildScrollView(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              20.height,
+              Padding(
+                padding: EdgeInsets.only(top: 12, left: 12, right: 12),
+                // Chỉ định padding bên trái
+                child: Container(
+                  height: 300,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.white,
+                    border: Border.all(
+                      color: Colors.black12,
+                      // Màu viền cho hình ảnh xem trước được chọn
+                      width: 2.0,
+                    ),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    // Điều chỉnh giá trị theo ý muốn
+                    child: Image.network(
+                      classModel?.thumbnailUrl ??
+                          'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Image_not_available.png/640px-Image_not_available.png',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
               ),
-            ),
-            20.height,
-            Container(
-              padding: EdgeInsets.only(left: 16.0, right: 16.0),
-              // Điều chỉnh khoảng cách từ bên trái màn hình
-              child: TextFormField(
-                readOnly: true,
-                controller: nameController,
-                decoration: InputDecoration(
-                  labelText: 'Name',
-                  labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                  border: OutlineInputBorder(),
-                  //Thêm viền xung quanh TextFormField
-                  contentPadding: EdgeInsets.symmetric(vertical: 16.0),
-                  // Điều chỉnh khoảng cách đỉnh và đáy
-                  prefixIcon:
-                      Icon(Icons.class_), //Thêm biểu tượng trước trường nhập
+              20.height,
+              Container(
+                width: double.infinity,
+                height: 50,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 16, right: 16),
+                    child: Row(
+                      children: studentList.map((student) {
+                        return GestureDetector(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Row(
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.only(right: 16),
+                                        child: Container(
+                                          height: 50,
+                                          width: 50,
+                                          child: CircleAvatar(
+                                            backgroundImage: NetworkImage(
+                                                student.avatarUrl.toString()),
+                                          ),
+                                        ),
+                                      ),
+                                      Text(
+                                        '${student.firstName} ${student.lastName}',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  content: Container(
+                                    height: 85,
+                                    child: Column(
+                                      children: [
+                                        Text('${student.email}' ?? 'email'),
+                                        20.height,
+                                        Container(
+                                          padding: EdgeInsets.only(
+                                              left: 16,
+                                              right: 16,
+                                              top: 8,
+                                              bottom: 8),
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(24),
+                                            color: (student.classStatus ==
+                                                    'Pending Approval')
+                                                ? Colors.yellow
+                                                : Colors.green,
+                                          ),
+                                          child: Text(
+                                              '${student.classStatus}' ??
+                                                  'status'),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      child: Text('OK'),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                          child: Container(
+                            height: 50,
+                            width: 50,
+                            child: CircleAvatar(
+                              backgroundImage:
+                                  NetworkImage(student.avatarUrl.toString()),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
                 ),
               ),
-            ),
-            20.height,
-            Container(
-              padding: EdgeInsets.only(left: 16.0, right: 16.0),
-              // Điều chỉnh khoảng cách từ bên trái màn hình
-              child: TextFormField(
-                readOnly: true,
-                controller: descriptionController,
-                decoration: InputDecoration(
-                  labelText: 'Description',
-                  labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                  border: OutlineInputBorder(),
-                  //Thêm viền xung quanh TextFormField
-                  contentPadding: EdgeInsets.symmetric(vertical: 16.0),
-                  // Điều chỉnh khoảng cách đỉnh và đáy
-                  prefixIcon: Icon(
-                      Icons.description), //Thêm biểu tượng trước trường nhập
+              20.height,
+              Container(
+                padding: EdgeInsets.only(left: 16.0, right: 16.0),
+                // Điều chỉnh khoảng cách từ bên trái màn hình
+                child: TextFormField(
+                  readOnly: true,
+                  controller: codeController,
+                  decoration: InputDecoration(
+                    labelText: 'Code',
+                    labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                    border: OutlineInputBorder(),
+                    //Thêm viền xung quanh TextFormField
+                    contentPadding: EdgeInsets.symmetric(vertical: 16.0),
+                    // Điều chỉnh khoảng cách đỉnh và đáy
+                    prefixIcon:
+                        Icon(Icons.qr_code), //Thêm biểu tượng trước trường nhập
+                  ),
                 ),
               ),
-            ),
-            20.height,
-            Container(
-              padding: EdgeInsets.only(left: 16.0, right: 16.0),
-              // Điều chỉnh khoảng cách từ bên trái màn hình
-              child: TextFormField(
-                readOnly: true,
-                controller: createAtController,
-                decoration: InputDecoration(
-                  labelText: 'Create At',
-                  labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                  border: OutlineInputBorder(),
-                  //Thêm viền xung quanh TextFormField
-                  contentPadding: EdgeInsets.symmetric(vertical: 16.0),
-                  // Điều chỉnh khoảng cách đỉnh và đáy
-                  prefixIcon: Icon(
-                      Icons.lock_clock), //Thêm biểu tượng trước trường nhập
+              20.height,
+              Container(
+                padding: EdgeInsets.only(left: 16.0, right: 16.0),
+                // Điều chỉnh khoảng cách từ bên trái màn hình
+                child: TextFormField(
+                  readOnly: true,
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    labelText: 'Name',
+                    labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                    border: OutlineInputBorder(),
+                    //Thêm viền xung quanh TextFormField
+                    contentPadding: EdgeInsets.symmetric(vertical: 16.0),
+                    // Điều chỉnh khoảng cách đỉnh và đáy
+                    prefixIcon:
+                        Icon(Icons.class_), //Thêm biểu tượng trước trường nhập
+                  ),
                 ),
               ),
-            ),
-            20.height,
-                Container(
-                  padding: EdgeInsets.only(left: 16.0, right: 16.0),
-                  // Điều chỉnh khoảng cách từ bên trái màn hình
-                  child: TextFormField(
+              20.height,
+              Container(
+                padding: EdgeInsets.only(left: 16.0, right: 16.0),
+                // Điều chỉnh khoảng cách từ bên trái màn hình
+                child: TextFormField(
                     readOnly: true,
-                    controller: numberOfMemberController,
+                    controller: descriptionController,
                     decoration: InputDecoration(
-                      labelText: 'Max Of Members',
+                      labelText: 'Description',
                       labelStyle: TextStyle(fontWeight: FontWeight.bold),
                       border: OutlineInputBorder(),
                       //Thêm viền xung quanh TextFormField
                       contentPadding: EdgeInsets.symmetric(vertical: 16.0),
                       // Điều chỉnh khoảng cách đỉnh và đáy
-                      prefixIcon: Icon(
-                          Icons.person), //Thêm biểu tượng trước trường nhập
+                      prefixIcon: Icon(Icons
+                          .description), //Thêm biểu tượng trước trường nhập
                     ),
+                    maxLines: null),
+              ),
+              20.height,
+              Container(
+                padding: EdgeInsets.only(left: 16.0, right: 16.0),
+                // Điều chỉnh khoảng cách từ bên trái màn hình
+                child: TextFormField(
+                  readOnly: true,
+                  controller: createAtController,
+                  decoration: InputDecoration(
+                    labelText: 'Create At',
+                    labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                    border: OutlineInputBorder(),
+                    //Thêm viền xung quanh TextFormField
+                    contentPadding: EdgeInsets.symmetric(vertical: 16.0),
+                    // Điều chỉnh khoảng cách đỉnh và đáy
+                    prefixIcon: Icon(
+                        Icons.lock_clock), //Thêm biểu tượng trước trường nhập
                   ),
                 ),
-            20.height,
-            Container(
-              padding: EdgeInsets.only(left: 16.0, right: 16.0),
-              // Điều chỉnh khoảng cách từ bên trái màn hình
-              child: TextFormField(
-                readOnly: true,
-                controller: managerController,
-                decoration: InputDecoration(
-                  labelText: 'Manager',
-                  labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                  border: OutlineInputBorder(),
-                  //Thêm viền xung quanh TextFormField
-                  contentPadding: EdgeInsets.symmetric(vertical: 16.0),
-                  // Điều chỉnh khoảng cách đỉnh và đáy
-                  prefixIcon: Icon(Icons
-                      .manage_accounts), //Thêm biểu tượng trước trường nhập
+              ),
+              20.height,
+              Container(
+                padding: EdgeInsets.only(left: 16.0, right: 16.0),
+                // Điều chỉnh khoảng cách từ bên trái màn hình
+                child: TextFormField(
+                  readOnly: true,
+                  controller: numberOfMemberController,
+                  decoration: InputDecoration(
+                    labelText: 'Max Of Members',
+                    labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                    border: OutlineInputBorder(),
+                    //Thêm viền xung quanh TextFormField
+                    contentPadding: EdgeInsets.symmetric(vertical: 16.0),
+                    // Điều chỉnh khoảng cách đỉnh và đáy
+                    prefixIcon:
+                        Icon(Icons.person), //Thêm biểu tượng trước trường nhập
+                  ),
                 ),
               ),
-            ),
-            20.height,
-            if (!isMember && hasFetchedData)
-              Column(
-                children: [
-                  ElevatedButton(
-                    onPressed: () async {
-                      try {
-                        Map<String, String> bearerHeaders = {
-                          'Content-Type': 'application/json-patch+json',
-                          'Authorization': 'Bearer ${userProvider.accessToken}',
-                        };
-                        final queryParameters = {
-                          'classId': '${classModel?.id}',
-                        };
-                        final response = await http.post(
-                            Uri.parse(apiUrl + '/api/classes/request-to-join')
-                                .replace(queryParameters: {
-                              'classId': classModel?.id,
-                            }),
-                            headers: bearerHeaders);
-                        if (response.statusCode == 200) {
-                          setState(() {
-                            isMember = true;
-                            hasFetchedData = false;
-                            _showRequestSuccessDialog(context);
-                          });
-                        } else {}
-                      } catch (e) {}
-                    },
-                    child: Text('Enroll Me'),
+              20.height,
+              Container(
+                padding: EdgeInsets.only(left: 16.0, right: 16.0),
+                // Điều chỉnh khoảng cách từ bên trái màn hình
+                child: TextFormField(
+                  readOnly: true,
+                  controller: managerController,
+                  decoration: InputDecoration(
+                    labelText: 'Manager',
+                    labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                    border: OutlineInputBorder(),
+                    //Thêm viền xung quanh TextFormField
+                    contentPadding: EdgeInsets.symmetric(vertical: 16.0),
+                    // Điều chỉnh khoảng cách đỉnh và đáy
+                    prefixIcon: Icon(Icons
+                        .manage_accounts), //Thêm biểu tượng trước trường nhập
                   ),
-                ],
+                ),
               ),
-              40.height,
-              if(hasFetchedData)
+              20.height,
+              if (!isMember && hasFetchedData)
                 Column(
                   children: [
-                    Text(
-                      'List Of Members', // Đặt tiêu đề ở đây
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18, // Cỡ chữ và các thuộc tính khác của văn bản
-                      ),
-                    ),
-                    SingleChildScrollView(
-                      child: Column(
-                        children: studentList.map((student) {
-                          return ListTile(
-                            leading: CircleAvatar(
-                              backgroundImage: NetworkImage(student.avatarUrl.toString()),
+                    Container(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          try {
+                            Map<String, String> bearerHeaders = {
+                              'Content-Type': 'application/json-patch+json',
+                              'Authorization':
+                                  'Bearer ${userProvider.accessToken}',
+                            };
+                            final queryParameters = {
+                              'classId': '${classModel?.id}',
+                            };
+                            final response = await http.post(
+                                Uri.parse(
+                                        apiUrl + '/api/classes/request-to-join')
+                                    .replace(queryParameters: {
+                                  'classId': classModel?.id,
+                                }),
+                                headers: bearerHeaders);
+                            if (response.statusCode == 200) {
+                              setState(() {
+                                isMember = true;
+                                hasFetchedData = false;
+                                Navigator.pop(context);
+                                _showRequestSuccessDialog(context);
+                              });
+                            } else {}
+                          } catch (e) {}
+                        },
+                        style: ButtonStyle(
+                          shape:
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                  12.0), // Điều chỉnh giá trị theo ý muốn
                             ),
-                            title: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(student.firstName+ ' ' + student.lastName),
-                                Text(student.email),
-                              ],
-                            ),
-                            subtitle: Text(student.classStatus ?? ''),
-                          );
-                        }).toList(),
+                          ),
+                        ),
+                        child: Text(
+                          'Enroll Me',
+                          style: TextStyle(
+                            color: Colors.black,
+                          ),
+                        ),
                       ),
                     ),
                   ],
-                )
-          ],
+                ),
+              if (hasFetchedData && isMember)
+                if (classModel?.status == 'Opening')
+                  Column(
+                    children: [
+                      Padding(
+                        padding:
+                            EdgeInsets.only(bottom: 16, left: 16, right: 16),
+                        child: Container(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        HDManageReportScreen()),
+                              );
+                            },
+                            style: ButtonStyle(
+                              minimumSize: MaterialStateProperty.resolveWith(
+                                  (states) => Size(200, 50)),
+                              shape: MaterialStateProperty.all<
+                                  RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      12.0), // Điều chỉnh giá trị theo ý muốn
+                                ),
+                              ),
+                            ),
+                            child: Text(
+                              'Reports',
+                              style: TextStyle(
+                                color: Colors.black,
+                                // Đặt màu cho văn bản
+                                fontSize: 18,
+                                // Đặt kích thước của văn bản (tuỳ chọn)
+                                fontWeight: FontWeight
+                                    .bold, // Đặt độ đậm của văn bản (tuỳ chọn)
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+            ],
+          ),
         ),
       ),
     );
@@ -293,6 +460,7 @@ class _HDClassDetailScreenState extends State<HDClassDetailScreen> {
       }
     } catch (e) {}
   }
+
   void _showRequestSuccessDialog(BuildContext context) {
     showDialog(
       context: context,

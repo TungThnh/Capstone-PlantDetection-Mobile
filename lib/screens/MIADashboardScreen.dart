@@ -1,3 +1,4 @@
+import 'package:Detection/fragments/HDPlantFragment.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:Detection/fragments/HDCameraFragment.dart';
@@ -11,10 +12,10 @@ import 'package:Detection/utils/MIAColors.dart';
 import 'package:Detection/utils/MIADataGenerator.dart';
 import 'package:nb_utils/nb_utils.dart';
 
+import 'HDManageReportScreen.dart';
+
 class MIADashboardScreen extends StatefulWidget {
-
   const MIADashboardScreen({Key? key}) : super(key: key);
-
 
   @override
   _MIADashboardScreenState createState() => _MIADashboardScreenState();
@@ -29,6 +30,8 @@ class _MIADashboardScreenState extends State<MIADashboardScreen> {
     if (selectedTab == 0) {
       return HDClassFragment();
     } else if (selectedTab == 1) {
+      return HDPlantFragment();
+    } else if (selectedTab == 2) {
       return MIASettingsFragment();
     } else {
       return HDCameraFragment();
@@ -41,7 +44,8 @@ class _MIADashboardScreenState extends State<MIADashboardScreen> {
         body: getFragment(),
         bottomNavigationBar: Container(
           padding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-          decoration: boxDecorationDefault(borderRadius: radius(0), color: context.cardColor),
+          decoration: boxDecorationDefault(
+              borderRadius: radius(0), color: context.cardColor),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: fragmentList.map((e) {

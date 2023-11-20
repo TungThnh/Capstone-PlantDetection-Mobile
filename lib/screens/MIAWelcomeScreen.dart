@@ -28,7 +28,7 @@ class MIAWelcomeScreen extends StatelessWidget {
                   AppButton(
                     color: miaPrimaryColor,
                     text: 'Sign In',
-                    textStyle: boldTextStyle(color: white),
+                    textStyle: boldTextStyle(color: black),
                     onTap: () {
                       MIASignInScreen().launch(context);
                     },
