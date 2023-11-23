@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:Detection/fragments/HDClassFragment.dart';
 import 'package:Detection/providers/APIUrl.dart';
+import 'package:Detection/screens/HDDetectPlantInClassScreen.dart';
 import 'package:Detection/screens/HDManageReportScreen.dart';
+import 'package:camera/camera.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:Detection/models/HDUserModel.dart';
@@ -392,8 +394,8 @@ class _HDClassDetailScreenState extends State<HDClassDetailScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) =>
-                                        HDManageReportScreen()),
+                                    builder: (context) => HDManageReportScreen(
+                                        classId: classModel!.id)),
                               );
                             },
                             style: ButtonStyle(
@@ -407,16 +409,85 @@ class _HDClassDetailScreenState extends State<HDClassDetailScreen> {
                                 ),
                               ),
                             ),
-                            child: Text(
-                              'Reports',
-                              style: TextStyle(
-                                color: Colors.black,
-                                // Đặt màu cho văn bản
-                                fontSize: 18,
-                                // Đặt kích thước của văn bản (tuỳ chọn)
-                                fontWeight: FontWeight
-                                    .bold, // Đặt độ đậm của văn bản (tuỳ chọn)
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.collections_bookmark,
+                                  color: Colors.black,
+                                ),
+                                10.width,
+                                Text(
+                                  'Reports',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    // Đặt màu cho văn bản
+                                    fontSize: 18,
+                                    // Đặt kích thước của văn bản (tuỳ chọn)
+                                    fontWeight: FontWeight
+                                        .bold, // Đặt độ đậm của văn bản (tuỳ chọn)
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+              if (hasFetchedData && isMember)
+                if (classModel?.status == 'Opening')
+                  Column(
+                    children: [
+                      Padding(
+                        padding:
+                            EdgeInsets.only(bottom: 16, left: 16, right: 16),
+                        child: Container(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              final cameras = await availableCameras();
+                              final camera = cameras.first;
+                              CameraController _controller =
+                                  CameraController(camera, ResolutionPreset.medium);
+                              await _controller!.initialize();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => HDDetectPlantInClassScreen(controller: _controller, classId: classModel!.id,)),
+                              );
+                            },
+                            style: ButtonStyle(
+                              minimumSize: MaterialStateProperty.resolveWith(
+                                  (states) => Size(200, 50)),
+                              shape: MaterialStateProperty.all<
+                                  RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      12.0), // Điều chỉnh giá trị theo ý muốn
+                                ),
                               ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.search,
+                                  color: Colors.black,
+                                ),
+                                10.width,
+                                Text(
+                                  'Detect',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    // Đặt màu cho văn bản
+                                    fontSize: 18,
+                                    // Đặt kích thước của văn bản (tuỳ chọn)
+                                    fontWeight: FontWeight
+                                        .bold, // Đặt độ đậm của văn bản (tuỳ chọn)
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
