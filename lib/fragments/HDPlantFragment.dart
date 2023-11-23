@@ -194,14 +194,21 @@ class _HDPlantFragmentState extends State<HDPlantFragment> {
                                 ),
                               ),
                             ),
-                            child: Text(
-                              'Search',
-                              style: TextStyle(
-                                color: Colors.black,
-                                // Đặt màu cho văn bản
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.search, color: Colors.black,),
+                                10.width,
+                                Text(
+                                  'Search',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    // Đặt màu cho văn bản
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
