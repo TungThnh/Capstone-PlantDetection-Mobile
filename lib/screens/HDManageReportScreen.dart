@@ -211,7 +211,7 @@ class _HDManageReportScreenState extends State<HDManageReportScreen> {
                                               Flexible(
                                                 flex: 1,
                                                 child: Text(
-                                                  '${report['label']}',
+                                                  '${report['label']['name']}',
                                                   style: TextStyle(
                                                       fontWeight:
                                                           FontWeight.bold,

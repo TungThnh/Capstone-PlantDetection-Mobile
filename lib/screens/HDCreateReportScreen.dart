@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:Detection/providers/APIUrl.dart';
 import 'package:Detection/screens/HDManageReportScreen.dart';
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nb_utils/nb_utils.dart';
@@ -12,6 +13,7 @@ import '../providers/UserProvider.dart';
 
 import 'package:http/http.dart' as http;
 import '../utils/MIAColors.dart';
+import 'HDTakePhotoInClassScreen.dart';
 
 class HDCreateReportScreen extends StatefulWidget {
   @override
@@ -21,6 +23,7 @@ class HDCreateReportScreen extends StatefulWidget {
 class _HDCreateReportScreenState extends State<HDCreateReportScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   File? capturedImage;
+  CameraController? _controller;
   final apiUrl = APIUrl.getUrl();
 
   @override
@@ -68,19 +71,35 @@ class _HDCreateReportScreenState extends State<HDCreateReportScreen> {
                 child: TextFormField(
                   controller: _imageTextFieldController,
                   decoration: InputDecoration(
+                    labelText: 'Image',
                     labelStyle: TextStyle(fontWeight: FontWeight.bold),
                     border: OutlineInputBorder(),
                     //Thêm viền xung quanh TextFormField
                     contentPadding: EdgeInsets.symmetric(vertical: 16.0),
                     prefixIcon: Icon(Icons.image),
                     suffixIcon: IconButton(
-                      icon: Icon(Icons.add, color: Colors.green),
+                      icon: capturedImage == null ? Icon(Icons.add, color: Colors.green) : Icon(Icons.edit, color: Colors.green),
                       onPressed: () async {
-                        final XFile? picture = await ImagePicker()
-                            .pickImage(source: ImageSource.gallery);
-                        if (picture != null) {
+                        final cameras = await availableCameras();
+                        final camera = cameras.first;
+                        _controller = CameraController(camera, ResolutionPreset.medium);
+                        await _controller!.initialize();
+                        final String? imagePath = await
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => HDTakePhotoInClassScreen(controller: _controller!,),
+                          ),
+                        );
+                        // Handle the returned imagePath
+                        _controller!.dispose();
+                        if (imagePath != null) {
                           setState(() {
-                            capturedImage = File(picture.path);
+                            capturedImage = File(imagePath);
+                          });
+                        } else {
+                          setState(() {
+                            capturedImage = null;
                           });
                         }
                       },
@@ -257,7 +276,6 @@ class _HDCreateReportScreenState extends State<HDCreateReportScreen> {
       },
     );
   }
-
   void hideLoadingDialog(BuildContext context) {
     Navigator.of(context, rootNavigator: true).pop('dialog');
   }

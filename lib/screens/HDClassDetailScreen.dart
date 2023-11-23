@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:Detection/fragments/HDClassFragment.dart';
 import 'package:Detection/providers/APIUrl.dart';
 import 'package:Detection/screens/HDManageReportScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -328,6 +329,7 @@ class _HDClassDetailScreenState extends State<HDClassDetailScreen> {
                 Column(
                   children: [
                     Container(
+                      padding: EdgeInsets.only(left: 12, right: 12),
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () async {
@@ -351,7 +353,7 @@ class _HDClassDetailScreenState extends State<HDClassDetailScreen> {
                               setState(() {
                                 isMember = true;
                                 hasFetchedData = false;
-                                Navigator.pop(context);
+                                Navigator.pop(context, true);
                                 _showRequestSuccessDialog(context);
                               });
                             } else {}
@@ -466,7 +468,7 @@ class _HDClassDetailScreenState extends State<HDClassDetailScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Request to join success. Pending Approval'),
+          title: Text('Joining class success'),
           actions: <Widget>[
             TextButton(
               child: Text('OK'),

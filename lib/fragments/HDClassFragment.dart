@@ -40,6 +40,7 @@ class _HDClassFragmentState extends State<HDClassFragment> {
   void initState() {
     changeStatusColor(appStore.scaffoldBackground!);
     super.initState();
+    currentClass = null;
   }
 
   void handleEnrollButtonPress() {
@@ -241,15 +242,19 @@ class _HDClassFragmentState extends State<HDClassFragment> {
         controller.stopCamera();
       });
       if (result != null && result!.code != null) {
-        await findClassByCode(apiUrl, result!.code!);
-        if (currentClass != null) {
-          Navigator.pushReplacement(
+        final HDClassModel? responseClass = await findClassByQRCode(apiUrl, result!.code!);
+        if (responseClass != null) {
+          final reload = await Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  HDClassDetailScreen(classModel: currentClass!),
+              builder: (context) => HDClassDetailScreen(classModel: responseClass!),
             ),
           );
+          if (reload == true) {
+            setState(() {
+              currentClass = responseClass;
+            });
+          }
         }
       }
     });
@@ -289,5 +294,40 @@ class _HDClassFragmentState extends State<HDClassFragment> {
         });
       }
     } catch (e) {}
+  }
+  Future<HDClassModel?> findClassByQRCode(String apiUrl, String code) async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
+      Map<String, String> bearerHeaders = {
+        'Content-Type': 'application/json-patch+json',
+      };
+      final response = await http.get(
+        Uri.parse('$apiUrl/api/classes/code/$code'),
+        headers: bearerHeaders,
+      );
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonResponse = json.decode(response.body);
+        final HDClassModel responseClass = HDClassModel.fromJson(jsonResponse);
+        setState(() {
+          isLoading = false;
+        });
+        return responseClass;
+      } else {
+        print('Error: ${response.statusCode}');
+        print('Response: ${response.body}');
+        setState(() {
+          isLoading = false;
+        });
+        return null;
+      }
+    } catch (e) {
+      print('Exception: $e');
+      setState(() {
+        isLoading = false;
+      });
+      return null;
+    }
   }
 }

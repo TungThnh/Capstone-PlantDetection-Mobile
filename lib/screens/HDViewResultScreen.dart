@@ -213,11 +213,13 @@ class _HDViewResultScreenState extends State<HDViewResultScreen> {
                   fontSize: 16.0),
             ),
           ),
-          Padding(
-            padding: EdgeInsets.only(bottom: 24.0),
-            child: Text(
-              'Below are some similar results',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
+          Center(
+            child: Padding(
+              padding: EdgeInsets.only(bottom: 24.0),
+              child: Text(
+                'Below are some similar results',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
+              ),
             ),
           ),
           for (var estimate in estimates)

@@ -133,7 +133,6 @@ class _HDTakePhotoScreenState extends State<HDTakePhotoScreen> {
                               setState(() {
                                 // Gán ảnh đã chụp vào biến capturedImage
                                 capturedImage = File(picture.path);
-                                print(capturedImage);
                               });
                               // Chuyển đến màn hình xem ảnh
                               Navigator.push(

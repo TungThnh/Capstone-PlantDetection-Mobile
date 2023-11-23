@@ -134,7 +134,7 @@ class _HDReportDetailScreenState extends State<HDReportDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${report['label']}' ?? 'Name',
+                      '${report['label']['name']}' ?? 'Name',
                       style:
                       TextStyle(fontWeight: FontWeight.bold, fontSize: 24.0),
                     ),
