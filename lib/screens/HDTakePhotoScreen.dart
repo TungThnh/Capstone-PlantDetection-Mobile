@@ -15,27 +15,42 @@ class HDTakePhotoScreen extends StatefulWidget {
   HDTakePhotoScreen({required this.controller});
 
   @override
-  _HDTakePhotoScreenState createState() =>
-      _HDTakePhotoScreenState(controller: controller);
+  _HDTakePhotoScreenState createState() => _HDTakePhotoScreenState();
 }
 
 class _HDTakePhotoScreenState extends State<HDTakePhotoScreen> {
-  final CameraController controller;
+  late CameraController controller;
+  double zoomLevel = 1.0;
+  double lastZoomLevel = 1.0;
   File? capturedImage;
 
-  _HDTakePhotoScreenState({required this.controller});
+  @override
+  void initState() {
+    super.initState();
+    controller = widget.controller;
+    initialize();
+  }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios, color: miaPrimaryColor),
           onPressed: () {
-           finish(context);
+            finish(context);
           },
         ).paddingSymmetric(horizontal: 8),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.close, color: miaPrimaryColor),
+            onPressed: () {
+              setState(() {
+                capturedImage = null;
+              });
+            },
+          ),
+        ],
         title: TextButton(
           onPressed: () {
             finish(context);
@@ -56,7 +71,26 @@ class _HDTakePhotoScreenState extends State<HDTakePhotoScreen> {
         child: Column(
           children: [
             // Widget để hiển thị hình ảnh từ camera
-            CameraPreview(controller),
+            if (capturedImage != null)
+              Image.file(
+                capturedImage!,
+                fit: BoxFit.contain,
+                height: 600,
+                width: double.infinity,
+              )
+            else
+              CameraPreview(controller),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                buildZoomButton(1.0, controller),
+                buildZoomButton(2.0, controller),
+                buildZoomButton(3.0, controller),
+                buildZoomButton(4.0, controller),
+                buildZoomButton(5.0, controller),
+                buildZoomButton(8.0, controller),
+              ],
+            ),
             Row(
               children: <Widget>[
                 Expanded(
@@ -64,53 +98,59 @@ class _HDTakePhotoScreenState extends State<HDTakePhotoScreen> {
                   child: InkWell(
                     onTap: () async {
                       showLoadingDialog(context);
-                      final XFile? picture = await ImagePicker().pickImage(source: ImageSource.gallery);
+                      final XFile? picture = await ImagePicker()
+                          .pickImage(source: ImageSource.gallery);
                       hideLoadingDialog(context);
                       if (picture != null) {
                         File selectedImage = File(picture.path);
                         setState(() {
-                          capturedImage = selectedImage; // Gán ảnh đã chọn vào capturedImage
+                          capturedImage =
+                              selectedImage; // Gán ảnh đã chọn vào capturedImage
                         });
                         // Chuyển đến màn hình xem ảnh
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => HDViewImageScreen(image: capturedImage),
+                            builder: (context) =>
+                                HDViewImageScreen(image: capturedImage),
                           ),
                         );
                       }
                     },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.orange,
-                        borderRadius: BorderRadius.circular(10.0),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.orange.withOpacity(0.5),
-                            spreadRadius: 3,
-                            blurRadius: 5,
-                            offset: Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Icon(
-                            Icons.collections, // Sử dụng biểu tượng bộ sưu tập
-                            size: 40.0,
-                            color: Colors.white,
-                          ),
-                          SizedBox(height: 10.0),
-                          Text(
-                            "Gallery",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 15.0,
-                              fontStyle: FontStyle.italic,
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 12),
+                      child:  Container(
+                        decoration: BoxDecoration(
+                          color: Colors.orange,
+                          borderRadius: BorderRadius.circular(10.0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.orange.withOpacity(0.5),
+                              spreadRadius: 3,
+                              blurRadius: 5,
+                              offset: Offset(0, 3),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Icon(
+                              Icons.collections, // Sử dụng biểu tượng bộ sưu tập
+                              size: 40.0,
+                              color: Colors.white,
+                            ),
+                            SizedBox(height: 10.0),
+                            Text(
+                              "Gallery",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 15.0,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -121,7 +161,7 @@ class _HDTakePhotoScreenState extends State<HDTakePhotoScreen> {
                     alignment: Alignment.center,
                     child: InkWell(
                       child: Padding(
-                        padding: EdgeInsets.only(top: 48.0, bottom: 48.0),
+                        padding: EdgeInsets.only(top: 24.0, bottom: 24.0),
                         // Padding xung quanh nút
                         child: InkWell(
                           onTap: () async {
@@ -138,7 +178,8 @@ class _HDTakePhotoScreenState extends State<HDTakePhotoScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => HDViewImageScreen(image: capturedImage),
+                                  builder: (context) =>
+                                      HDViewImageScreen(image: capturedImage),
                                 ),
                               );
                             }
@@ -218,4 +259,23 @@ class _HDTakePhotoScreenState extends State<HDTakePhotoScreen> {
     controller.dispose();
     super.dispose();
   }
+}
+
+Widget buildZoomButton(double zoomLevel, CameraController controller) {
+  return GestureDetector(
+    onTap: () {
+      controller.setZoomLevel(zoomLevel);
+    },
+    child: Padding(
+      padding: EdgeInsets.only(top: 12),
+      child: Container(
+        padding: EdgeInsets.only(top: 6, right: 6, left: 6),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.blue),
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        child: Text('$zoomLevel x'),
+      ),
+    ),
+  );
 }

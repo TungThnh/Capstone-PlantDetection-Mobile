@@ -54,7 +54,19 @@ class _HDTakePhotoInClassScreenState extends State<HDTakePhotoInClassScreen> {
               )
             else
               CameraPreview(controller),
-            SizedBox(height: 40),
+            SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                buildZoomButton(1.0, controller),
+                buildZoomButton(2.0, controller),
+                buildZoomButton(3.0, controller),
+                buildZoomButton(4.0, controller),
+                buildZoomButton(5.0, controller),
+                buildZoomButton(8.0, controller),
+              ],
+            ),
+            SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -219,4 +231,23 @@ class _HDTakePhotoInClassScreenState extends State<HDTakePhotoInClassScreen> {
     controller.dispose();
     super.dispose();
   }
+}
+
+Widget buildZoomButton(double zoomLevel, CameraController controller) {
+  return GestureDetector(
+    onTap: () {
+      controller.setZoomLevel(zoomLevel);
+    },
+    child: Padding(
+      padding: EdgeInsets.only(top: 12),
+      child: Container(
+        padding: EdgeInsets.only(top: 6, right: 6, left: 6),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.blue),
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        child: Text('$zoomLevel x'),
+      ),
+    ),
+  );
 }
