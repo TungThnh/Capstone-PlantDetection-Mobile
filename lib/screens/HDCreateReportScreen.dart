@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:Detection/providers/APIUrl.dart';
 import 'package:Detection/screens/HDManageReportScreen.dart';
 import 'package:camera/camera.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nb_utils/nb_utils.dart';
@@ -16,19 +17,33 @@ import '../utils/MIAColors.dart';
 import 'HDTakePhotoInClassScreen.dart';
 
 class HDCreateReportScreen extends StatefulWidget {
+  final String classId;
+
+  HDCreateReportScreen({required this.classId});
+
   @override
   State<HDCreateReportScreen> createState() => _HDCreateReportScreenState();
 }
 
 class _HDCreateReportScreenState extends State<HDCreateReportScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  String classId = '';
   File? capturedImage;
   CameraController? _controller;
   final apiUrl = APIUrl.getUrl();
+  Map<String, String> labelMap = {};
+  List<String> labels = [];
+  String selectedLabel = 'Label';
+  String selectedLabelId = '';
+  bool hasFetchLabels = false;
 
   @override
   void initState() {
     super.initState();
+    classId = widget.classId;
+    if (!hasFetchLabels) {
+      fetchLabels(apiUrl);
+    }
   }
 
   @override
@@ -78,17 +93,21 @@ class _HDCreateReportScreenState extends State<HDCreateReportScreen> {
                     contentPadding: EdgeInsets.symmetric(vertical: 16.0),
                     prefixIcon: Icon(Icons.image),
                     suffixIcon: IconButton(
-                      icon: capturedImage == null ? Icon(Icons.add, color: Colors.green) : Icon(Icons.edit, color: Colors.green),
+                      icon: capturedImage == null
+                          ? Icon(Icons.add, color: Colors.green)
+                          : Icon(Icons.edit, color: Colors.green),
                       onPressed: () async {
                         final cameras = await availableCameras();
                         final camera = cameras.first;
-                        _controller = CameraController(camera, ResolutionPreset.medium);
+                        _controller =
+                            CameraController(camera, ResolutionPreset.medium);
                         await _controller!.initialize();
-                        final String? imagePath = await
-                        Navigator.push(
+                        final String? imagePath = await Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => HDTakePhotoInClassScreen(controller: _controller!,),
+                            builder: (context) => HDTakePhotoInClassScreen(
+                              controller: _controller!,
+                            ),
                           ),
                         );
                         // Handle the returned imagePath
@@ -118,24 +137,37 @@ class _HDCreateReportScreenState extends State<HDCreateReportScreen> {
               Container(
                 padding: EdgeInsets.only(left: 16.0, right: 16.0),
                 // Điều chỉnh khoảng cách từ bên trái màn hình
-                child: TextFormField(
-                  controller: lableController,
+                child: InputDecorator(
                   decoration: InputDecoration(
-                    labelText: 'Label',
-                    labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                    contentPadding: EdgeInsets.only(left: 16.0, right: 16.0, top: 4, bottom: 4),
+                    prefixIcon: Icon(Icons.label), // Icon bạn muốn thêm
                     border: OutlineInputBorder(),
-                    //Thêm viền xung quanh TextFormField
-                    contentPadding: EdgeInsets.symmetric(vertical: 16.0),
-                    // Điều chỉnh khoảng cách đỉnh và đáy
-                    prefixIcon:
-                        Icon(Icons.label), //Thêm biểu tượng trước trường nhập
                   ),
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Label is required';
-                    }
-                    return null;
-                  },
+                  child: DropdownSearch<String>(
+                    popupProps: PopupProps.menu(
+                      showSelectedItems: true,
+                    ),
+                    dropdownDecoratorProps: DropDownDecoratorProps(
+                      dropdownSearchDecoration: InputDecoration(
+                        border: InputBorder.none,
+                      ),
+                    ),
+                    items: labels,
+                    onChanged: (value) {
+                      String? labelId = labelMap[value] ?? '';
+                      setState(() {
+                        selectedLabelId = labelId;
+                        selectedLabel = value as String;
+                      });
+                    },
+                    selectedItem: selectedLabel,
+                    validator: (value) {
+                      if (value == 'Label' || value?.length == 0) {
+                        return 'Label is required';
+                      }
+                      return null;
+                    },
+                  ),
                 ),
               ),
               20.height,
@@ -184,7 +216,7 @@ class _HDCreateReportScreenState extends State<HDCreateReportScreen> {
                               'multipart/form-data';
                           request.headers['Authorization'] =
                               'Bearer ${userProvider.accessToken}';
-                          request.fields['label'] = lableController.text;
+                          request.fields['LabelId'] = selectedLabelId;
                           request.fields['description'] =
                               descriptionController.text;
                           try {
@@ -276,7 +308,52 @@ class _HDCreateReportScreenState extends State<HDCreateReportScreen> {
       },
     );
   }
+
   void hideLoadingDialog(BuildContext context) {
     Navigator.of(context, rootNavigator: true).pop('dialog');
+  }
+
+  Future<void> fetchLabels(String apiUrl) async {
+    Map<String, String> bearerHeaders = {
+      'Content-Type': 'application/json-patch+json',
+    };
+
+    try {
+      final response = await http.get(Uri.parse(apiUrl + '/api/labels?classId=$classId'),
+          headers: bearerHeaders);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonResponse = json.decode(response.body);
+
+        if (jsonResponse.containsKey('data')) {
+          List<dynamic> data = jsonResponse['data'];
+          for (var item in data) {
+            if (item['name'] != null && item['id'] != null) {
+              String labelName = item['name'].toString();
+              String labelId = item['id'].toString();
+              labelMap[labelName] = labelId; // Thêm entry vào Map
+            }
+          }
+          setState(() {
+            hasFetchLabels = true;
+            labels = ["Label", ...labelMap.keys.toList()];
+            this.labelMap = Map.from(labelMap);
+          });
+        } else {
+          // Handle unexpected response structure
+          setState(() {
+            hasFetchLabels = true;
+            // Handle error due to unexpected response structure
+          });
+        }
+      } else {
+        setState(() {
+          hasFetchLabels = true;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        hasFetchLabels = true;
+      });
+    }
   }
 }
