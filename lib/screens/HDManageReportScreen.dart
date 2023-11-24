@@ -5,25 +5,26 @@ import 'package:Detection/screens/HDReportDetailScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:Detection/main.dart';
-import 'package:Detection/models/HDClassModel.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
 import '../providers/APIUrl.dart';
 import '../providers/UserProvider.dart';
-import 'HDClassDetailScreen.dart';
 import '../utils/MIAColors.dart';
 import '../utils/MIAWidgets.dart';
 
 class HDManageReportScreen extends StatefulWidget {
-  const HDManageReportScreen({Key? key}) : super(key: key);
+  final String classId;
+
+  HDManageReportScreen({required this.classId});
 
   @override
   State<HDManageReportScreen> createState() => _HDManageReportScreenState();
 }
 
 class _HDManageReportScreenState extends State<HDManageReportScreen> {
+  String classId = '';
   bool isLoading = false;
   bool isLoadingMoreData = false;
   bool hasFetchedData = false;
@@ -41,6 +42,7 @@ class _HDManageReportScreenState extends State<HDManageReportScreen> {
   void initState() {
     changeStatusColor(appStore.scaffoldBackground!);
     super.initState();
+    classId = widget.classId;
   }
 
   @override
@@ -127,7 +129,7 @@ class _HDManageReportScreenState extends State<HDManageReportScreen> {
                             final reLoad = await Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => HDCreateReportScreen(),
+                                builder: (context) => HDCreateReportScreen(classId: classId),
                               ),
                             );
                             if (reLoad == true) {
@@ -204,12 +206,13 @@ class _HDManageReportScreenState extends State<HDManageReportScreen> {
                                               )),
                                         ),
                                         Container(
-                                          height: 110,
+                                          height: 120,
                                           width: 150,
                                           child: Column(
                                             children: [
+                                              6.height,
                                               Flexible(
-                                                flex: 1,
+                                                flex: 2,
                                                 child: Text(
                                                   '${report['label']['name']}',
                                                   style: TextStyle(
