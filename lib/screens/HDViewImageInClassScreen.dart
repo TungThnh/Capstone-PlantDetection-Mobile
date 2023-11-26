@@ -72,11 +72,11 @@ class _HDViewImageInClassScreenState extends State<HDViewImageInClassScreen> {
     );
     request.headers['Content-Type'] = 'multipart/form-data';
     var response = await request.send();
-    print(response.statusCode);
     if (response.statusCode == 200) {
       hideLoadingDialog(context);
       var responseBody = await response.stream.bytesToString();
       Map<String, dynamic> data = json.decode(responseBody);
+      print(data);
       Navigator.push(
         context,
         MaterialPageRoute(
