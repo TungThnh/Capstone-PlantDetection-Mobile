@@ -92,38 +92,33 @@ class _HDCreateReportScreenState extends State<HDCreateReportScreen> {
                     //Thêm viền xung quanh TextFormField
                     contentPadding: EdgeInsets.symmetric(vertical: 16.0),
                     prefixIcon: Icon(Icons.image),
-                    suffixIcon: IconButton(
-                      icon: capturedImage == null
-                          ? Icon(Icons.add, color: Colors.green)
-                          : Icon(Icons.edit, color: Colors.green),
-                      onPressed: () async {
-                        final cameras = await availableCameras();
-                        final camera = cameras.first;
-                        _controller =
-                            CameraController(camera, ResolutionPreset.medium);
-                        await _controller!.initialize();
-                        final String? imagePath = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => HDTakePhotoInClassScreen(
-                              controller: _controller!,
-                            ),
-                          ),
-                        );
-                        // Handle the returned imagePath
-                        _controller!.dispose();
-                        if (imagePath != null) {
-                          setState(() {
-                            capturedImage = File(imagePath);
-                          });
-                        } else {
-                          setState(() {
-                            capturedImage = null;
-                          });
-                        }
-                      },
-                    ),
                   ),
+                  onTap: () async {
+                    final cameras = await availableCameras();
+                    final camera = cameras.first;
+                    _controller =
+                        CameraController(camera, ResolutionPreset.medium);
+                    await _controller!.initialize();
+                    final String? imagePath = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => HDTakePhotoInClassScreen(
+                          controller: _controller!,
+                        ),
+                      ),
+                    );
+                    // Handle the returned imagePath
+                    _controller!.dispose();
+                    if (imagePath != null) {
+                      setState(() {
+                        capturedImage = File(imagePath);
+                      });
+                    } else {
+                      setState(() {
+                        capturedImage = null;
+                      });
+                    }
+                  },
                   validator: (value) {
                     if (value!.isEmpty) {
                       return 'Image is required';
@@ -139,7 +134,8 @@ class _HDCreateReportScreenState extends State<HDCreateReportScreen> {
                 // Điều chỉnh khoảng cách từ bên trái màn hình
                 child: InputDecorator(
                   decoration: InputDecoration(
-                    contentPadding: EdgeInsets.only(left: 16.0, right: 16.0, top: 4, bottom: 4),
+                    contentPadding: EdgeInsets.only(
+                        left: 16.0, right: 16.0, top: 4, bottom: 4),
                     prefixIcon: Icon(Icons.label), // Icon bạn muốn thêm
                     border: OutlineInputBorder(),
                   ),
@@ -319,7 +315,8 @@ class _HDCreateReportScreenState extends State<HDCreateReportScreen> {
     };
 
     try {
-      final response = await http.get(Uri.parse(apiUrl + '/api/labels?classId=$classId'),
+      final response = await http.get(
+          Uri.parse(apiUrl + '/api/labels?classId=$classId'),
           headers: bearerHeaders);
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonResponse = json.decode(response.body);

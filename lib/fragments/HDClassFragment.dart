@@ -92,9 +92,25 @@ class _HDClassFragmentState extends State<HDClassFragment> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) {
-                            return QRView(
-                              key: qrKey,
-                              onQRViewCreated: _onQRViewCreated,
+                            return Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.9),
+                                  ),
+                                ),
+                                Center(
+                                  child: Container(
+                                    height: 240,
+                                    width: 240,
+                                    child: QRView(
+                                      key: qrKey,
+                                      onQRViewCreated: _onQRViewCreated,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             );
                           }),
                         );
@@ -242,12 +258,14 @@ class _HDClassFragmentState extends State<HDClassFragment> {
         controller.stopCamera();
       });
       if (result != null && result!.code != null) {
-        final HDClassModel? responseClass = await findClassByQRCode(apiUrl, result!.code!);
+        final HDClassModel? responseClass =
+            await findClassByQRCode(apiUrl, result!.code!);
         if (responseClass != null) {
           final reload = await Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => HDClassDetailScreen(classModel: responseClass!),
+              builder: (context) =>
+                  HDClassDetailScreen(classModel: responseClass!),
             ),
           );
           if (reload == true) {
@@ -295,6 +313,7 @@ class _HDClassFragmentState extends State<HDClassFragment> {
       }
     } catch (e) {}
   }
+
   Future<HDClassModel?> findClassByQRCode(String apiUrl, String code) async {
     try {
       setState(() {
@@ -315,6 +334,8 @@ class _HDClassFragmentState extends State<HDClassFragment> {
         });
         return responseClass;
       } else {
+        Navigator.pop(context);
+        _showClassNotFoundDialog(context);
         print('Error: ${response.statusCode}');
         print('Response: ${response.body}');
         setState(() {
@@ -330,4 +351,22 @@ class _HDClassFragmentState extends State<HDClassFragment> {
       return null;
     }
   }
+}
+void _showClassNotFoundDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Class not found!'),
+        actions: <Widget>[
+          TextButton(
+            child: Text('OK'),
+            onPressed: () {
+              Navigator.of(context).pop(); // Đóng thông báo popup
+            },
+          ),
+        ],
+      );
+    },
+  );
 }

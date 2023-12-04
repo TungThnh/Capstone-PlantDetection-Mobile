@@ -443,7 +443,7 @@ class _HDPlantFragmentState extends State<HDPlantFragment> {
         isLoadingMoreData = false;
         final Map<String, dynamic> jsonResponse = json.decode(response.body);
         setState(() {
-          if (pageNum >= totalRow - 1) isLastPage = true;
+          if (pageNum >= totalRow/10 - 1) isLastPage = true;
           final List<Map<String, dynamic>> newData =
               jsonResponse['data'].cast<Map<String, dynamic>>();
           data.addAll(newData);

@@ -68,93 +68,169 @@ class _HDReportDetailScreenState extends State<HDReportDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (!hasFetchedData) return Center(
-      child: CircularProgressIndicator(
-        valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-      ), //,
-    );
-    else return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: miaPrimaryColor),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ).paddingSymmetric(horizontal: 8),
-        title: Padding(
-          padding: EdgeInsets.only(left: 56),
-          child: Text(
-            'Report Detail',
-            style: TextStyle(
-              color: Colors.black, // Màu chữ
-              fontWeight: FontWeight.bold,
-              fontSize: 24.0, // Kích thước chữ
+    if (!hasFetchedData)
+      return Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+        ), //,
+      );
+    else
+      return Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back_ios, color: miaPrimaryColor),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ).paddingSymmetric(horizontal: 8),
+          title: Padding(
+            padding: EdgeInsets.only(left: 56),
+            child: Text(
+              'Report Detail',
+              style: TextStyle(
+                color: Colors.black, // Màu chữ
+                fontWeight: FontWeight.bold,
+                fontSize: 24.0, // Kích thước chữ
+              ),
             ),
           ),
         ),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.only(top: 12, left: 12, right: 12),
-              // Chỉ định padding bên trái
-              child: Container(
-                width: double.infinity,
-                height: 300,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: Colors.white,
-                  border: Border.all(
-                    color: Colors.black12,
-                    // Màu viền cho hình ảnh xem trước được chọn
-                    width: 2.0,
+        body: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: EdgeInsets.only(top: 12, left: 12, right: 12),
+                // Chỉ định padding bên trái
+                child: Container(
+                  width: double.infinity,
+                  height: 300,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.white,
+                    border: Border.all(
+                      color: Colors.black12,
+                      // Màu viền cho hình ảnh xem trước được chọn
+                      width: 2.0,
+                    ),
                   ),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  // Điều chỉnh giá trị theo ý muốn
-                  child: Image.network(
-                    report['imageUrl'] ?? 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Image_not_available.png/640px-Image_not_available.png',
-                    fit: BoxFit.cover,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    // Điều chỉnh giá trị theo ý muốn
+                    child: Image.network(
+                      report['imageUrl'] ??
+                          'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Image_not_available.png/640px-Image_not_available.png',
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               ),
-            ),
-            SizedBox(height: 20),
-            Padding(
-              padding: EdgeInsets.only(left: 12.0, right: 12),
-              // Chỉ định padding bên trái
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  // Căn lề bên trái
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${report['label']['name']}' ?? 'Name',
-                      style:
-                      TextStyle(fontWeight: FontWeight.bold, fontSize: 24.0),
-                    ),
-                    Text(
-                      '${report['description']}' ?? 'Description',
-                      style: TextStyle(
-                        color: Colors.black.withOpacity(0.5),
-                        // Độ mờ màu chữ
-                        fontSize: 16,
-                        // Kích thước chữ
-                        fontWeight: FontWeight.normal, // Trọng lượng chữ
+              SizedBox(height: 20),
+              Padding(
+                padding: EdgeInsets.only(left: 12.0, right: 12),
+                // Chỉ định padding bên trái
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    // Căn lề bên trái
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      (report['status'] == 'Pending')
+                          ? Padding(
+                              padding: EdgeInsets.only(top: 8),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.yellow,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                padding: EdgeInsets.only(
+                                    top: 4, bottom: 4, left: 8, right: 8),
+                                child: Text(report['status']),
+                              ),
+                            )
+                          : SizedBox(),
+                      (report['status'] == 'Approved')
+                          ? Padding(
+                              padding: EdgeInsets.only(top: 8),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.green,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                padding: EdgeInsets.only(
+                                    top: 4, bottom: 4, left: 8, right: 8),
+                                child: Text(report['status']),
+                              ),
+                            )
+                          : SizedBox(),
+                      (report['status'] == 'In Progress')
+                          ? Padding(
+                              padding: EdgeInsets.only(top: 8),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.blue,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                padding: EdgeInsets.only(
+                                    top: 4, bottom: 4, left: 8, right: 8),
+                                child: Text(report['status']),
+                              ),
+                            )
+                          : SizedBox(),
+                      (report['status'] == 'Processed')
+                          ? Padding(
+                              padding: EdgeInsets.only(top: 8),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.greenAccent,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                padding: EdgeInsets.only(
+                                    top: 4, bottom: 4, left: 8, right: 8),
+                                child: Text(report['status']),
+                              ),
+                            )
+                          : SizedBox(),
+                      (report['status'] == 'Rejected')
+                          ? Padding(
+                              padding: EdgeInsets.only(top: 8),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                padding: EdgeInsets.only(
+                                    top: 4, bottom: 4, left: 8, right: 8),
+                                child: Text(report['status']),
+                              ),
+                            )
+                          : SizedBox(),
+                      Text(
+                        '${report['label']['name']}' ?? 'Name',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 24.0),
                       ),
-                    ),
-                  ],
+                      Text(
+                        '${report['description']}' ?? 'Description',
+                        style: TextStyle(
+                          color: Colors.black.withOpacity(0.5),
+                          // Độ mờ màu chữ
+                          fontSize: 16,
+                          // Kích thước chữ
+                          fontWeight: FontWeight.normal, // Trọng lượng chữ
+                        ),
+                      ),
+                      (report['status'] == 'Rejected')
+                          ? Text('Reason: ${report['note']}' ?? '', style: TextStyle(color: Colors.red),)
+                          : SizedBox(),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
+      );
   }
 }

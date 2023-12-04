@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:Detection/screens/HDCreateReportScreen.dart';
 import 'package:Detection/screens/HDReportDetailScreen.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:Detection/main.dart';
@@ -27,12 +28,21 @@ class _HDManageReportScreenState extends State<HDManageReportScreen> {
   String classId = '';
   bool isLoading = false;
   bool isLoadingMoreData = false;
+  bool hasFetchLabels = false;
   bool hasFetchedData = false;
   bool _atBottom = false;
+  List<String> labels = [];
+  List<String> sorts = ['None', 'Latest', 'Oldest'];
+  Map<String, String> labelMap = {};
   ScrollController _scrollController = ScrollController();
   bool isLastPage = false;
   int totalRow = 0;
   int pageNum = 0;
+  String selectedLabel = 'Labels';
+  String selectedSort = 'None';
+  String selectedLabelId = '';
+
+  final apiUrl = APIUrl.getUrl();
 
   List<Map<String, dynamic>> data = [];
 
@@ -43,6 +53,9 @@ class _HDManageReportScreenState extends State<HDManageReportScreen> {
     changeStatusColor(appStore.scaffoldBackground!);
     super.initState();
     classId = widget.classId;
+    if (!hasFetchLabels) {
+      fetchLabels(apiUrl, classId);
+    }
   }
 
   @override
@@ -52,7 +65,7 @@ class _HDManageReportScreenState extends State<HDManageReportScreen> {
     String? accessToken = userProvider.accessToken;
 
     if (!hasFetchedData) {
-      fetchReports(apiUrl, accessToken!);
+      fetchReports(apiUrl, accessToken!, 'Labels', selectedSort);
       setState(() {
         hasFetchedData = true;
       });
@@ -66,7 +79,11 @@ class _HDManageReportScreenState extends State<HDManageReportScreen> {
             pageNum = pageNum + 1;
           });
           lastFetchTime = DateTime.now();
-          await fetchMoreReports(apiUrl, accessToken!, pageNum);
+          (selectedLabel == 'Labels')
+              ? await fetchMoreReports(
+                  apiUrl, accessToken!, pageNum, 'Labels', selectedSort)
+              : await fetchMoreReports(
+                  apiUrl, accessToken!, pageNum, selectedLabelId, selectedSort);
         }
       }
     }
@@ -129,7 +146,8 @@ class _HDManageReportScreenState extends State<HDManageReportScreen> {
                             final reLoad = await Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => HDCreateReportScreen(classId: classId),
+                                builder: (context) =>
+                                    HDCreateReportScreen(classId: classId),
                               ),
                             );
                             if (reLoad == true) {
@@ -169,6 +187,54 @@ class _HDManageReportScreenState extends State<HDManageReportScreen> {
                               Icon(Icons.add, size: 30, color: Colors.black),
                             ],
                           ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            top: 8, left: 16.0, right: 16.0, bottom: 20),
+                        child: DropdownSearch<String>(
+                          popupProps: PopupProps.menu(
+                            showSelectedItems: true,
+                          ),
+                          items: labels,
+                          onChanged: (value) {
+                            String? labelId = labelMap[value] ?? '';
+                            setState(() {
+                              selectedLabelId = labelId as String;
+                              selectedLabel = value as String;
+                              if (selectedLabel != 'Labels') {
+                                fetchReports(apiUrl, accessToken!,
+                                    selectedLabelId, selectedSort);
+                              } else {
+                                fetchReports(apiUrl, accessToken!,
+                                    selectedLabel, selectedSort);
+                              }
+                            });
+                          },
+                          selectedItem: selectedLabel,
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            top: 8, left: 16.0, right: 16.0, bottom: 20),
+                        child: DropdownSearch<String>(
+                          popupProps: PopupProps.menu(
+                            showSelectedItems: true,
+                          ),
+                          items: sorts,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedSort = value!;
+                              if (selectedLabel != 'Labels') {
+                                fetchReports(apiUrl, accessToken!,
+                                    selectedLabelId, selectedSort);
+                              } else {
+                                fetchReports(apiUrl, accessToken!,
+                                    selectedLabel, selectedSort);
+                              }
+                            });
+                          },
+                          selectedItem: selectedSort,
                         ),
                       ),
                       (data.isEmpty)
@@ -243,6 +309,123 @@ class _HDManageReportScreenState extends State<HDManageReportScreen> {
                                           height: 110,
                                           child: Stack(
                                             children: [
+                                              (report['status'] == 'Pending')
+                                                  ? Padding(
+                                                      padding: EdgeInsets.only(
+                                                          top: 8, left: 8),
+                                                      child: Container(
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: Colors.yellow,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(16),
+                                                        ),
+                                                        padding:
+                                                            EdgeInsets.only(
+                                                                top: 4,
+                                                                bottom: 4,
+                                                                left: 8,
+                                                                right: 8),
+                                                        child: Text(
+                                                            report['status']),
+                                                      ),
+                                                    )
+                                                  : SizedBox(),
+                                              (report['status'] == 'Approved')
+                                                  ? Padding(
+                                                      padding: EdgeInsets.only(
+                                                          top: 8, left: 8),
+                                                      child: Container(
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: Colors.green,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(16),
+                                                        ),
+                                                        padding:
+                                                            EdgeInsets.only(
+                                                                top: 4,
+                                                                bottom: 4,
+                                                                left: 8,
+                                                                right: 8),
+                                                        child: Text(
+                                                            report['status']),
+                                                      ),
+                                                    )
+                                                  : SizedBox(),
+                                              (report['status'] ==
+                                                      'In Progress')
+                                                  ? Padding(
+                                                      padding: EdgeInsets.only(
+                                                          top: 8, left: 8),
+                                                      child: Container(
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: Colors.blue,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(16),
+                                                        ),
+                                                        padding:
+                                                            EdgeInsets.only(
+                                                                top: 4,
+                                                                bottom: 4,
+                                                                left: 8,
+                                                                right: 8),
+                                                        child: Text(
+                                                            report['status']),
+                                                      ),
+                                                    )
+                                                  : SizedBox(),
+                                              (report['status'] == 'Processed')
+                                                  ? Padding(
+                                                      padding: EdgeInsets.only(
+                                                          top: 8, left: 8),
+                                                      child: Container(
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: Colors
+                                                              .greenAccent,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(16),
+                                                        ),
+                                                        padding:
+                                                            EdgeInsets.only(
+                                                                top: 4,
+                                                                bottom: 4,
+                                                                left: 8,
+                                                                right: 8),
+                                                        child: Text(
+                                                            report['status']),
+                                                      ),
+                                                    )
+                                                  : SizedBox(),
+                                              (report['status'] == 'Rejected')
+                                                  ? Padding(
+                                                      padding: EdgeInsets.only(
+                                                          top: 8, left: 8),
+                                                      child: Container(
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: Colors.red,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(16),
+                                                        ),
+                                                        padding:
+                                                            EdgeInsets.only(
+                                                                top: 4,
+                                                                bottom: 4,
+                                                                left: 8,
+                                                                right: 8),
+                                                        child: Text(
+                                                            report['status']),
+                                                      ),
+                                                    )
+                                                  : SizedBox(),
                                               Positioned(
                                                 bottom: 0,
                                                 right: 12,
@@ -314,7 +497,8 @@ class _HDManageReportScreenState extends State<HDManageReportScreen> {
     });
   }
 
-  Future<void> fetchReports(String apiUrl, String accessToken) async {
+  Future<void> fetchReports(
+      String apiUrl, String accessToken, String labelId, String sort) async {
     setState(() {
       isLoading = true;
       data = [];
@@ -324,8 +508,30 @@ class _HDManageReportScreenState extends State<HDManageReportScreen> {
       'Authorization': 'Bearer ${accessToken}',
     };
     try {
-      final response = await http.get(Uri.parse(apiUrl + '/api/reports'),
-          headers: bearerHeaders);
+      final response = (selectedLabel == 'Labels')
+          ? ((sort == 'None')
+              ? await http.get(Uri.parse(apiUrl + '/api/reports/students'),
+                  headers: bearerHeaders)
+              : (sort == 'Latest')
+                  ? await http.get(
+                      Uri.parse(apiUrl + '/api/reports/students?latest=true'),
+                      headers: bearerHeaders)
+                  : await http.get(
+                      Uri.parse(apiUrl + '/api/reports/students?latest=false'),
+                      headers: bearerHeaders))
+          : ((sort == 'None')
+              ? await http.get(
+                  Uri.parse(
+                      apiUrl + '/api/reports/students?labelId=${labelId}'),
+                  headers: bearerHeaders)
+              : (sort == 'Latest')
+                  ? await http.get(
+                      Uri.parse(apiUrl +
+                          '/api/reports/students?labelId=${labelId}&latest=true'),
+                      headers: bearerHeaders)
+                  : await http.get(
+                      Uri.parse(apiUrl + '/api/reports/students?labelId=${labelId}&latest=false'),
+                      headers: bearerHeaders));
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonResponse = json.decode(response.body);
         setState(() {
@@ -348,16 +554,40 @@ class _HDManageReportScreenState extends State<HDManageReportScreen> {
     }
   }
 
-  Future<void> fetchMoreReports(
-      String apiUrl, String acceessToken, int pageNumber) async {
+  Future<void> fetchMoreReports(String apiUrl, String acceessToken,
+      int pageNumber, String labelId, String sort) async {
     Map<String, String> bearerHeaders = {
       'Content-Type': 'application/json-patch+json',
       'Authorization': 'Bearer ${acceessToken}',
     };
     try {
-      final response = await http.get(
-          Uri.parse(apiUrl + '/api/reports?pageNumber=${pageNumber}'),
-          headers: bearerHeaders);
+      final response = (selectedLabel == 'Labels')
+          ? ((sort == 'None')
+              ? await http
+                  .get(Uri.parse(apiUrl + '/api/reports/students?pageNumber=${pageNumber}'),
+                      headers: bearerHeaders)
+              : (sort == 'Latest')
+                  ? await http.get(
+                      Uri.parse(apiUrl +
+                          '/api/reports/students?pageNumber=${pageNumber}&latest=true'),
+                      headers: bearerHeaders)
+                  : await http.get(
+                      Uri.parse(apiUrl +
+                          '/api/reports/students?pageNumber=${pageNumber}&latest=false'),
+                      headers: bearerHeaders))
+          : ((sort == 'None')
+              ? await http.get(
+                  Uri.parse(apiUrl +
+                      '/api/reports/students?labelId=${labelId}&pageNumber=${pageNumber}'),
+                  headers: bearerHeaders)
+              : (sort == 'Latest')
+                  ? await http
+                      .get(Uri.parse(apiUrl + '/api/reports/students?labelId=${labelId}&pageNumber=${pageNumber}&latest=true'),
+                          headers: bearerHeaders)
+                  : await http.get(
+                      Uri.parse(apiUrl + '/api/reports/students?labelId=${labelId}&pageNumber=${pageNumber}&latest=false'),
+                      headers: bearerHeaders));
+
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonResponse = json.decode(response.body);
         setState(() {
@@ -375,6 +605,55 @@ class _HDManageReportScreenState extends State<HDManageReportScreen> {
     } catch (e) {
       setState(() {
         isLoadingMoreData = false;
+      });
+    }
+  }
+
+  Future<void> fetchLabels(String apiUrl, String classId) async {
+    setState(() {
+      isLoading = true;
+    });
+    Map<String, String> bearerHeaders = {
+      'Content-Type': 'application/json-patch+json',
+    };
+
+    try {
+      final response = await http.get(
+          Uri.parse(apiUrl + '/api/labels?classId=${classId}'),
+          headers: bearerHeaders);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonResponse = json.decode(response.body);
+
+        if (jsonResponse.containsKey('data')) {
+          List<dynamic> data = jsonResponse['data'];
+          for (var item in data) {
+            if (item['name'] != null && item['id'] != null) {
+              String categoryName = item['name'].toString();
+              String categoryId = item['id'].toString();
+              labelMap[categoryName] = categoryId; // Thêm entry vào Map
+            }
+          }
+          setState(() {
+            isLoading = false;
+            labels = ["Labels", ...labelMap.keys.toList()];
+            hasFetchLabels = true;
+            this.labelMap = Map.from(labelMap);
+          });
+        } else {
+          // Handle unexpected response structure
+          setState(() {
+            isLoading = false;
+            // Handle error due to unexpected response structure
+          });
+        }
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
       });
     }
   }

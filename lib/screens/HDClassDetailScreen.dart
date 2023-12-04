@@ -31,6 +31,7 @@ class _HDClassDetailScreenState extends State<HDClassDetailScreen> {
   List<HDUserModel> studentList = [];
   bool hasFetchedData = false;
   bool isMember = false;
+  bool isModelExists = false;
   final apiUrl = APIUrl.getUrl();
 
   @override
@@ -38,6 +39,7 @@ class _HDClassDetailScreenState extends State<HDClassDetailScreen> {
     super.initState();
     classModel = widget.classModel;
     if (!hasFetchedData) {
+      checkIsModelExists(apiUrl, classModel?.id);
       fetchMemberOfClass(apiUrl, classModel?.id);
     }
   }
@@ -198,12 +200,15 @@ class _HDClassDetailScreenState extends State<HDClassDetailScreen> {
                               },
                             );
                           },
-                          child: Container(
-                            height: 50,
-                            width: 50,
-                            child: CircleAvatar(
-                              backgroundImage:
-                                  NetworkImage(student.avatarUrl.toString()),
+                          child: Padding(
+                            padding: EdgeInsets.only(right: 8),
+                            child: Container(
+                              height: 50,
+                              width: 50,
+                              child: CircleAvatar(
+                                backgroundImage:
+                                    NetworkImage(student.avatarUrl.toString()),
+                              ),
                             ),
                           ),
                         );
@@ -358,6 +363,9 @@ class _HDClassDetailScreenState extends State<HDClassDetailScreen> {
                                 Navigator.pop(context, true);
                                 _showRequestSuccessDialog(context);
                               });
+                            } else if (response.statusCode == 423) {
+                              Navigator.pop(context);
+                              _showClassClosedDialog(context);
                             } else {}
                           } catch (e) {}
                         },
@@ -418,7 +426,7 @@ class _HDClassDetailScreenState extends State<HDClassDetailScreen> {
                                 ),
                                 10.width,
                                 Text(
-                                  'Reports',
+                                  'Send data',
                                   style: TextStyle(
                                     color: Colors.black,
                                     // Đặt màu cho văn bản
@@ -437,63 +445,68 @@ class _HDClassDetailScreenState extends State<HDClassDetailScreen> {
                   ),
               if (hasFetchedData && isMember)
                 if (classModel?.status == 'Opening')
-                  Column(
-                    children: [
-                      Padding(
-                        padding:
-                            EdgeInsets.only(bottom: 16, left: 16, right: 16),
-                        child: Container(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () async {
-                              final cameras = await availableCameras();
-                              final camera = cameras.first;
-                              CameraController _controller =
-                                  CameraController(camera, ResolutionPreset.medium);
-                              await _controller!.initialize();
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => HDDetectPlantInClassScreen(controller: _controller, classId: classModel!.id,)),
-                              );
-                            },
-                            style: ButtonStyle(
-                              minimumSize: MaterialStateProperty.resolveWith(
-                                  (states) => Size(200, 50)),
-                              shape: MaterialStateProperty.all<
-                                  RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      12.0), // Điều chỉnh giá trị theo ý muốn
-                                ),
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.search,
-                                  color: Colors.black,
-                                ),
-                                10.width,
-                                Text(
-                                  'Detect',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    // Đặt màu cho văn bản
-                                    fontSize: 18,
-                                    // Đặt kích thước của văn bản (tuỳ chọn)
-                                    fontWeight: FontWeight
-                                        .bold, // Đặt độ đậm của văn bản (tuỳ chọn)
+                  if (isModelExists)
+                    Column(
+                      children: [
+                        Padding(
+                          padding:
+                              EdgeInsets.only(bottom: 16, left: 16, right: 16),
+                          child: Container(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                final cameras = await availableCameras();
+                                final camera = cameras.first;
+                                CameraController _controller = CameraController(
+                                    camera, ResolutionPreset.medium);
+                                await _controller!.initialize();
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          HDDetectPlantInClassScreen(
+                                            controller: _controller,
+                                            classId: classModel!.id,
+                                          )),
+                                );
+                              },
+                              style: ButtonStyle(
+                                minimumSize: MaterialStateProperty.resolveWith(
+                                    (states) => Size(200, 50)),
+                                shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                        12.0), // Điều chỉnh giá trị theo ý muốn
                                   ),
                                 ),
-                              ],
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.search,
+                                    color: Colors.black,
+                                  ),
+                                  10.width,
+                                  Text(
+                                    'Detect',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      // Đặt màu cho văn bản
+                                      fontSize: 18,
+                                      // Đặt kích thước của văn bản (tuỳ chọn)
+                                      fontWeight: FontWeight
+                                          .bold, // Đặt độ đậm của văn bản (tuỳ chọn)
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
             ],
           ),
         ),
@@ -534,12 +547,55 @@ class _HDClassDetailScreenState extends State<HDClassDetailScreen> {
     } catch (e) {}
   }
 
+  Future<void> checkIsModelExists(String apiUrl, classId) async {
+    try {
+      Map<String, String> bearerHeaders = {
+        'Content-Type': 'application/json-patch+json',
+      };
+
+      final response = await http.get(
+          Uri.parse(apiUrl + '/api/classes/$classId/is-model-exists'),
+          headers: bearerHeaders);
+
+      if (response.statusCode == 200) {
+        if (response.body == "true") {
+          setState(() {
+            isModelExists = true;
+          });
+        }
+      } else {
+        setState(() {
+          isModelExists = false;
+        });
+      }
+    } catch (e) {}
+  }
+
   void _showRequestSuccessDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Joining class success'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Đóng thông báo popup
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showClassClosedDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('The class has been closed!'),
           actions: <Widget>[
             TextButton(
               child: Text('OK'),

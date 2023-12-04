@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:Detection/models/HDUserModel.dart';
 import 'package:Detection/utils/MIAColors.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:provider/provider.dart';
 
@@ -19,6 +20,17 @@ class HDUpdateProfileScreen extends StatefulWidget {
 
 class _HDUpdateProfileScreenState extends State<HDUpdateProfileScreen> {
   HDUserModel? currenUser;
+
+  late DateTime selectedDate;
+
+  bool isFirstFetch = true;
+
+  late TextEditingController firstNameController;
+  late TextEditingController lastNameController;
+  late TextEditingController collegeController;
+  late TextEditingController phoneController;
+  late TextEditingController addressController;
+  late TextEditingController dayOfBirthController;
 
   void _showUpdateSuccessDialog(BuildContext context) {
     showDialog(
@@ -40,22 +52,55 @@ class _HDUpdateProfileScreenState extends State<HDUpdateProfileScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    selectedDate =
+        parseDate(currenUser?.dayOfBirth as String? ?? '') ?? DateTime.now();
+    dayOfBirthController = TextEditingController(
+        text: DateFormat('dd/MM/yyyy').format(selectedDate) ?? '');
+  }
+
+  @override
   Widget build(BuildContext context) {
     final apiUrl = APIUrl.getUrl();
     final userProvider = Provider.of<UserProvider>(context);
     currenUser = userProvider.currentUser;
-    var firstNameController =
+
+    firstNameController =
         TextEditingController(text: currenUser?.firstName ?? '');
-    var lastNameController =
+    lastNameController =
         TextEditingController(text: currenUser?.lastName ?? '');
-    var collegeController =
-        TextEditingController(text: currenUser?.college ?? '');
-    var phoneController = TextEditingController(text: currenUser?.phone ?? '');
-    var addressController =
-        TextEditingController(text: currenUser?.address ?? '');
-    var dayOfBirthController =
-        TextEditingController(text: currenUser?.dayOfBirth ?? '');
+    collegeController = TextEditingController(text: currenUser?.college ?? '');
+    phoneController = TextEditingController(text: currenUser?.phone ?? '');
+    addressController = TextEditingController(text: currenUser?.address ?? '');
+
+    if (isFirstFetch){
+      selectedDate =
+          parseDate(currenUser?.dayOfBirth as String ?? '') ?? DateTime.now();
+      dayOfBirthController = TextEditingController(
+          text: DateFormat('dd/MM/yyyy').format(selectedDate) ?? '');
+    }
+
+
     final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+    Future<void> _selectDate(BuildContext context) async {
+      final DateTime? picked = await showDatePicker(
+        context: context,
+        initialDate: selectedDate,
+        firstDate: DateTime(1900),
+        lastDate: DateTime.now(),
+      );
+
+      if (picked != null && picked != selectedDate) {
+        setState(() {
+          isFirstFetch = false;
+          selectedDate = picked;
+          dayOfBirthController.text =
+              DateFormat('dd/MM/yyyy').format(selectedDate) ?? '';
+        });
+      }
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -172,6 +217,9 @@ class _HDUpdateProfileScreenState extends State<HDUpdateProfileScreen> {
                       if (value!.isEmpty) {
                         return 'Phone is required';
                       }
+                      if (!isValidPhoneNumber(value)){
+                        return 'Invalid phone number';
+                      }
                       return null;
                     },
                   ),
@@ -199,25 +247,18 @@ class _HDUpdateProfileScreenState extends State<HDUpdateProfileScreen> {
                 SizedBox(height: 20.0),
                 Container(
                   padding: EdgeInsets.only(left: 16.0, right: 16.0),
-                  // Điều chỉnh khoảng cách từ bên trái màn hình
                   child: TextFormField(
                     controller: dayOfBirthController,
+                    readOnly: true,
+                    // Đặt trạng thái chỉ đọc để không cho người dùng nhập trực tiếp
+                    onTap: () => _selectDate(context),
                     decoration: InputDecoration(
                       labelText: 'Day Of Birth',
                       labelStyle: TextStyle(fontWeight: FontWeight.bold),
                       border: OutlineInputBorder(),
-                      //Thêm viền xung quanh TextFormField
                       contentPadding: EdgeInsets.symmetric(vertical: 16.0),
-                      // Điều chỉnh khoảng cách đỉnh và đáy
-                      prefixIcon: Icon(Icons
-                          .calendar_today), //Thêm biểu tượng trước trường nhập
+                      prefixIcon: Icon(Icons.calendar_today),
                     ),
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return 'Day Of Birth is required';
-                      }
-                      return null;
-                    },
                   ),
                 ),
                 SizedBox(height: 20.0),
@@ -241,15 +282,17 @@ class _HDUpdateProfileScreenState extends State<HDUpdateProfileScreen> {
                             "dayOfBirth": "${dayOfBirthController.text}"
                           };
                           final response = await http.put(
-                            Uri.parse(apiUrl + '/api/students/${currenUser?.id}'),
+                            Uri.parse(
+                                apiUrl + '/api/students/${currenUser?.id}'),
                             headers: bearerHeaders,
                             body: jsonEncode(data),
                           );
-                          print(response.statusCode);
+                          // DateTime sd = DateTime.parse(dayOfBirthController.text);
+                          // print(sd);
                           if (response.statusCode == 200) {
                             _showUpdateSuccessDialog(context);
                             final Map<String, dynamic> responseData =
-                            json.decode(response.body);
+                                json.decode(response.body);
 
                             setState(() {
                               currenUser = HDUserModel(
@@ -272,7 +315,7 @@ class _HDUpdateProfileScreenState extends State<HDUpdateProfileScreen> {
                     },
                     style: ButtonStyle(
                       minimumSize: MaterialStateProperty.resolveWith(
-                              (states) => Size(200, 50)),
+                          (states) => Size(200, 50)),
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
@@ -285,8 +328,8 @@ class _HDUpdateProfileScreenState extends State<HDUpdateProfileScreen> {
                       style: TextStyle(
                         color: Colors.black, // Đặt màu cho văn bản
                         fontSize: 24, // Đặt kích thước của văn bản (tuỳ chọn)
-                        fontWeight:
-                        FontWeight.bold, // Đặt độ đậm của văn bản (tuỳ chọn)
+                        fontWeight: FontWeight
+                            .bold, // Đặt độ đậm của văn bản (tuỳ chọn)
                       ),
                     ),
                   ),
@@ -298,4 +341,22 @@ class _HDUpdateProfileScreenState extends State<HDUpdateProfileScreen> {
       ),
     );
   }
+}
+
+DateTime? parseDate(String inputDate) {
+  try {
+    // Định dạng chuỗi ngày theo định dạng "dd/MM/yyyy"
+    DateFormat format = DateFormat('dd/MM/yyyy');
+    // Chuyển đổi chuỗi ngày thành đối tượng DateTime
+    DateTime parsedDate = format.parseStrict(inputDate);
+    return parsedDate;
+  } catch (e) {
+    // Xử lý nếu có lỗi định dạng
+    return null;
+  }
+}
+bool isValidPhoneNumber(String phoneNumber) {
+  // Sử dụng biểu thức chính quy để kiểm tra xem chuỗi có 10 chữ số không
+  RegExp regExp = RegExp(r'^[0-9]{10}$');
+  return regExp.hasMatch(phoneNumber);
 }
