@@ -69,6 +69,7 @@ flutter:
   assets:
     - fonts/
     - images/
+    - images/game.png
     - images/background.png
   uses-material-design: true
 

@@ -1,7 +1,5 @@
 import 'dart:convert';
 
-import 'package:carousel_slider/carousel_slider.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:http/http.dart' as http;
@@ -100,6 +98,82 @@ class _HDReportDetailScreenState extends State<HDReportDetailScreen> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Center(
+                child: Column(
+                  children: [
+                    (report['status'] == 'Pending')
+                        ? Padding(
+                            padding: EdgeInsets.only(top: 24, bottom: 12),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.yellow,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              padding: EdgeInsets.only(
+                                  top: 4, bottom: 4, left: 8, right: 8),
+                              child: Text(report['status']),
+                            ),
+                          )
+                        : SizedBox(),
+                    (report['status'] == 'Approved')
+                        ? Padding(
+                            padding: EdgeInsets.only(top: 24, bottom: 12),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.green,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              padding: EdgeInsets.only(
+                                  top: 4, bottom: 4, left: 8, right: 8),
+                              child: Text(report['status']),
+                            ),
+                          )
+                        : SizedBox(),
+                    (report['status'] == 'In Progress')
+                        ? Padding(
+                            padding: EdgeInsets.only(top: 24, bottom: 12),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.blue,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              padding: EdgeInsets.only(
+                                  top: 4, bottom: 4, left: 8, right: 8),
+                              child: Text(report['status']),
+                            ),
+                          )
+                        : SizedBox(),
+                    (report['status'] == 'Processed')
+                        ? Padding(
+                            padding: EdgeInsets.only(top: 24, bottom: 12),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.greenAccent,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              padding: EdgeInsets.only(
+                                  top: 4, bottom: 4, left: 8, right: 8),
+                              child: Text(report['status']),
+                            ),
+                          )
+                        : SizedBox(),
+                    (report['status'] == 'Rejected')
+                        ? Padding(
+                            padding: EdgeInsets.only(top: 24, bottom: 12),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              padding: EdgeInsets.only(
+                                  top: 4, bottom: 4, left: 8, right: 8),
+                              child: Text(report['status']),
+                            ),
+                          )
+                        : SizedBox(),
+                  ],
+                ),
+              ),
               Padding(
                 padding: EdgeInsets.only(top: 12, left: 12, right: 12),
                 // Chỉ định padding bên trái
@@ -136,94 +210,43 @@ class _HDReportDetailScreenState extends State<HDReportDetailScreen> {
                     // Căn lề bên trái
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      (report['status'] == 'Pending')
-                          ? Padding(
-                              padding: EdgeInsets.only(top: 8),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.yellow,
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                padding: EdgeInsets.only(
-                                    top: 4, bottom: 4, left: 8, right: 8),
-                                child: Text(report['status']),
-                              ),
-                            )
-                          : SizedBox(),
-                      (report['status'] == 'Approved')
-                          ? Padding(
-                              padding: EdgeInsets.only(top: 8),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.green,
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                padding: EdgeInsets.only(
-                                    top: 4, bottom: 4, left: 8, right: 8),
-                                child: Text(report['status']),
-                              ),
-                            )
-                          : SizedBox(),
-                      (report['status'] == 'In Progress')
-                          ? Padding(
-                              padding: EdgeInsets.only(top: 8),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.blue,
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                padding: EdgeInsets.only(
-                                    top: 4, bottom: 4, left: 8, right: 8),
-                                child: Text(report['status']),
-                              ),
-                            )
-                          : SizedBox(),
-                      (report['status'] == 'Processed')
-                          ? Padding(
-                              padding: EdgeInsets.only(top: 8),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.greenAccent,
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                padding: EdgeInsets.only(
-                                    top: 4, bottom: 4, left: 8, right: 8),
-                                child: Text(report['status']),
-                              ),
-                            )
-                          : SizedBox(),
-                      (report['status'] == 'Rejected')
-                          ? Padding(
-                              padding: EdgeInsets.only(top: 8),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                padding: EdgeInsets.only(
-                                    top: 4, bottom: 4, left: 8, right: 8),
-                                child: Text(report['status']),
-                              ),
-                            )
-                          : SizedBox(),
                       Text(
                         '${report['label']['name']}' ?? 'Name',
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 24.0),
                       ),
-                      Text(
-                        '${report['description']}' ?? 'Description',
-                        style: TextStyle(
-                          color: Colors.black.withOpacity(0.5),
-                          // Độ mờ màu chữ
-                          fontSize: 16,
-                          // Kích thước chữ
-                          fontWeight: FontWeight.normal, // Trọng lượng chữ
+                      12.height,
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          color: Colors.black26,
+                        ),
+                        constraints: BoxConstraints(
+                          minHeight: 250.0, // Đặt chiều cao tối thiểu 100.0
+                        ),
+                        width: double.infinity,
+                        child: Padding(
+                          padding: EdgeInsets.only(left: 8, right: 8, top: 8, bottom: 8),
+                          child: Text(
+                            '${report['description']}' ?? 'Description',
+                            style: TextStyle(
+                              color: Colors.black.withOpacity(0.5),
+                              // Độ mờ màu chữ
+                              fontSize: 16,
+                              // Kích thước chữ
+                              fontWeight: FontWeight.normal, // Trọng lượng chữ
+                            ),
+                          ),
                         ),
                       ),
+                      12.height,
                       (report['status'] == 'Rejected')
-                          ? Text('Reason: ${report['note']}' ?? '', style: TextStyle(color: Colors.red),)
+                          ? Text(
+                              'Reason: ${report['note']}' ?? '',
+                              style: TextStyle(color: Colors.red),
+                            )
                           : SizedBox(),
+                      12.height,
                     ],
                   ),
                 ),

@@ -12,6 +12,7 @@ import 'package:Detection/utils/MIAColors.dart';
 import 'package:Detection/utils/MIADataGenerator.dart';
 import 'package:nb_utils/nb_utils.dart';
 
+import '../fragments/HDGameFragment.dart';
 import 'HDManageReportScreen.dart';
 
 class MIADashboardScreen extends StatefulWidget {
@@ -33,6 +34,8 @@ class _MIADashboardScreenState extends State<MIADashboardScreen> {
       return HDPlantFragment();
     } else if (selectedTab == 2) {
       return MIASettingsFragment();
+    } else if (selectedTab == 3) {
+      return HDGameFragment();
     } else {
       return HDCameraFragment();
     }

@@ -78,7 +78,7 @@ class _HDClassDetailScreenState extends State<HDClassDetailScreen> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios, color: miaPrimaryColor),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pop(context, true);
           },
         ).paddingSymmetric(horizontal: 8),
         title: Padding(
@@ -336,7 +336,7 @@ class _HDClassDetailScreenState extends State<HDClassDetailScreen> {
                 Column(
                   children: [
                     Container(
-                      padding: EdgeInsets.only(left: 12, right: 12),
+                      padding: EdgeInsets.only(left: 12, right: 12, bottom: 24),
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () async {
@@ -370,19 +370,36 @@ class _HDClassDetailScreenState extends State<HDClassDetailScreen> {
                           } catch (e) {}
                         },
                         style: ButtonStyle(
-                          shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                          minimumSize: MaterialStateProperty.resolveWith(
+                                  (states) => Size(200, 50)),
+                          shape: MaterialStateProperty.all<
+                              RoundedRectangleBorder>(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(
                                   12.0), // Điều chỉnh giá trị theo ý muốn
                             ),
                           ),
                         ),
-                        child: Text(
-                          'Enroll Me',
-                          style: TextStyle(
-                            color: Colors.black,
-                          ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.call_missed_outgoing,
+                              color: Colors.black,
+                            ),
+                            10.width,
+                            Text(
+                              'Enroll',
+                              style: TextStyle(
+                                color: Colors.black,
+                                // Đặt màu cho văn bản
+                                fontSize: 18,
+                                // Đặt kích thước của văn bản (tuỳ chọn)
+                                fontWeight: FontWeight
+                                    .bold, // Đặt độ đậm của văn bản (tuỳ chọn)
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -507,6 +524,55 @@ class _HDClassDetailScreenState extends State<HDClassDetailScreen> {
                         ),
                       ],
                     ),
+              if (hasFetchedData && isMember)
+                Column(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 16, left: 16, right: 16),
+                      child: Container(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            await LeaveClass(apiUrl, classModel!.id, userProvider.accessToken);
+                          },
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
+                            minimumSize: MaterialStateProperty.resolveWith(
+                                (states) => Size(200, 50)),
+                            shape: MaterialStateProperty.all<
+                                RoundedRectangleBorder>(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                    12.0), // Điều chỉnh giá trị theo ý muốn
+                              ),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.exit_to_app,
+                                color: Colors.black,
+                              ),
+                              10.width,
+                              Text(
+                                'Leave class',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  // Đặt màu cho văn bản
+                                  fontSize: 18,
+                                  // Đặt kích thước của văn bản (tuỳ chọn)
+                                  fontWeight: FontWeight
+                                      .bold, // Đặt độ đậm của văn bản (tuỳ chọn)
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
             ],
           ),
         ),
@@ -571,12 +637,55 @@ class _HDClassDetailScreenState extends State<HDClassDetailScreen> {
     } catch (e) {}
   }
 
+  Future<void> LeaveClass(String apiUrl, classId, accessToken) async {
+    try {
+      Map<String, String> bearerHeaders = {
+        'Content-Type': 'application/json-patch+json',
+        'Authorization': 'Bearer $accessToken',
+      };
+
+      bool? leaveClass = await showLeaveClassConfirmationDialog(context);
+      if (leaveClass == true) {
+        final response = await http.delete(
+            Uri.parse(apiUrl + '/api/classes/$classId/leave'),
+            headers: bearerHeaders);
+        if (response.statusCode == 204) {
+          Navigator.pop(context, true);
+          _showLeaveClassSuccessDialog(context);// Leave Class
+        } else {
+          print('can not leave');
+        }
+      } else {
+      }
+    } catch (e) {
+    }
+  }
+
   void _showRequestSuccessDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Joining class success'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Đóng thông báo popup
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showLeaveClassSuccessDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Leave class success'),
           actions: <Widget>[
             TextButton(
               child: Text('OK'),
@@ -602,6 +711,32 @@ class _HDClassDetailScreenState extends State<HDClassDetailScreen> {
               onPressed: () {
                 Navigator.of(context).pop(); // Đóng thông báo popup
               },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<bool?> showLeaveClassConfirmationDialog(BuildContext context) async {
+    return await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Leave Class"),
+          content: Text("Are you sure you want to leave this class?"),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false); // Cancel
+              },
+              child: Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true); //
+              },
+              child: Text("Submit"),
             ),
           ],
         );
