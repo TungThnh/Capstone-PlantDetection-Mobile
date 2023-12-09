@@ -24,6 +24,8 @@ dependencies:
   qr_code_scanner: ^1.0.1
   dropdown_search: ^5.0.6
   infinite_scroll_pagination: ^4.0.0
+  flutter_html: 3.0.0-beta.2
+
 
   # Base
   cupertino_icons: ^1.0.4

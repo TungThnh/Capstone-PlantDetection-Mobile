@@ -1,8 +1,7 @@
 import 'dart:convert';
 
-import 'package:carousel_slider/carousel_slider.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:http/http.dart' as http;
 import '../providers/APIUrl.dart';
@@ -69,6 +68,7 @@ class _HDPlantDetailScreenState extends State<HDPlantDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final staticAnchorKey = GlobalKey();
     if (!hasFetchedData)
       return Center(
         child: CircularProgressIndicator(
@@ -119,11 +119,16 @@ class _HDPlantDetailScreenState extends State<HDPlantDetailScreen> {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(12),
                       // Điều chỉnh giá trị theo ý muốn
-                      child: Image.network(
-                        plant['images'][_currentImageIndex]['url'] ??
-                            'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Image_not_available.png/640px-Image_not_available.png',
-                        fit: BoxFit.cover,
-                      ),
+                      child:
+                          plant['images'] != null && plant['images'].isNotEmpty
+                              ? Image.network(
+                                  plant['images'][_currentImageIndex]['url'],
+                                  fit: BoxFit.cover,
+                                )
+                              : Image.network(
+                                  'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Image_not_available.png/640px-Image_not_available.png',
+                                  fit: BoxFit.cover,
+                                ),
                     ),
                   ),
                 ),
@@ -188,527 +193,549 @@ class _HDPlantDetailScreenState extends State<HDPlantDetailScreen> {
                       // Căn lề bên trái
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Center(
-                          child: Text(
-                            '${plant['name']}' ?? 'name',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 24.0),
-                          ),
-                        ),
+                        (plant['name'] != null && plant['name'] != '')
+                            ? Center(
+                                child: Text(
+                                  '${plant['name']}',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 24.0),
+                                ),
+                              )
+                            : Center(
+                                child: Text(
+                                  'name',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 24.0),
+                                ),
+                              ),
                         10.height,
                         (plant['plantCategories'] != null)
                             ? Wrap(
-                          children: [
-                            Text(
-                              'Họ: ',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16.0),
-                            ),
-                            Text(
-                              '${plant['plantCategories'][0]['category']['name']}',
-                              style: TextStyle(fontSize: 16.0),
-                            ),
-                          ],
-                        )
+                                children: [
+                                  Text(
+                                    'Họ: ',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16.0),
+                                  ),
+                                  Text(
+                                    '${plant['plantCategories'][0]['category']['name']}',
+                                    style: TextStyle(fontSize: 16.0),
+                                  ),
+                                ],
+                              )
                             : Wrap(
-                          children: [
-                            Text(
-                              'Họ: ',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16.0),
-                            ),
-                            Text(
-                              'Chưa có thông tin!',
-                              style: TextStyle(fontSize: 16.0),
-                            ),
-                          ],
-                        ),
+                                children: [
+                                  Text(
+                                    'Họ: ',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16.0),
+                                  ),
+                                  Text(
+                                    'Chưa có thông tin!',
+                                    style: TextStyle(fontSize: 16.0),
+                                  ),
+                                ],
+                              ),
                         (plant['livingCondition'] != null)
                             ? Column(
-                          children: [
-                            10.height,
-                            Wrap(
-                              children: [
-                                Text(
-                                  'Nhiệt độ: ',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16.0),
-                                ),
-                                Text(
-                                  '${plant['livingCondition']}' ??
-                                      'livingCondition',
-                                  style: TextStyle(fontSize: 16.0),
-                                  softWrap: true,
-                                )
-                              ],
-                            )
-                          ],
-                        )
+                                children: [
+                                  10.height,
+                                  Wrap(
+                                    children: [
+                                      Text(
+                                        'Nhiệt độ: ',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16.0),
+                                      ),
+                                      Text(
+                                        '${plant['livingCondition']}',
+                                        style: TextStyle(fontSize: 16.0),
+                                        softWrap: true,
+                                      )
+                                    ],
+                                  )
+                                ],
+                              )
                             : Column(
-                          children: [
-                            10.height,
-                            Wrap(
-                              children: [
-                                Text(
-                                  'Nhiệt độ: ',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16.0),
-                                ),
-                                Text(
-                                  'Chưa có thông tin!',
-                                  style: TextStyle(fontSize: 16.0),
-                                  softWrap: true,
-                                )
-                              ],
-                            )
-                          ],
-                        ),
+                                children: [
+                                  10.height,
+                                  Wrap(
+                                    children: [
+                                      Text(
+                                        'Nhiệt độ: ',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16.0),
+                                      ),
+                                      Text(
+                                        'Chưa có thông tin!',
+                                        style: TextStyle(fontSize: 16.0),
+                                        softWrap: true,
+                                      )
+                                    ],
+                                  )
+                                ],
+                              ),
                         (plant['ph'] != null) ? 10.height : SizedBox(),
                         (plant['ph'] != null)
                             ? Wrap(
-                          children: [
-                            Text(
-                              'Độ ph: ',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16.0),
-                              softWrap: true,
-                            ),
-                            Text(
-                              '${plant['ph']}' ?? 'ph',
-                              style: TextStyle(fontSize: 16.0),
-                              softWrap: true,
-                            )
-                          ],
-                        )
+                                children: [
+                                  Text(
+                                    'Độ ph: ',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16.0),
+                                    softWrap: true,
+                                  ),
+                                  Text(
+                                    '${plant['ph']}',
+                                    style: TextStyle(fontSize: 16.0),
+                                    softWrap: true,
+                                  )
+                                ],
+                              )
                             : Wrap(
-                          children: [
-                            Text(
-                              'Độ ph: ',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16.0),
-                              softWrap: true,
-                            ),
-                            Text(
-                              'Chưa có thông tin!',
-                              style: TextStyle(fontSize: 16.0),
-                              softWrap: true,
-                            )
-                          ],
-                        ),
+                                children: [
+                                  Text(
+                                    'Độ ph: ',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16.0),
+                                    softWrap: true,
+                                  ),
+                                  Text(
+                                    'Chưa có thông tin!',
+                                    style: TextStyle(fontSize: 16.0),
+                                    softWrap: true,
+                                  )
+                                ],
+                              ),
                         (plant['distributionArea'] != null)
                             ? Column(
-                          children: [
-                            10.height,
-                            Wrap(
-                              children: [
-                                Text(
-                                  'Phân bố: ',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16.0),
-                                  softWrap: true,
-                                ),
-                                Text(
-                                  '${plant['distributionArea']}' ??
-                                      'distributionArea',
-                                  style: TextStyle(fontSize: 16.0),
-                                  softWrap: true,
-                                ),
-                              ],
-                            ),
-                          ],
-                        )
+                                children: [
+                                  10.height,
+                                  Wrap(
+                                    children: [
+                                      Text(
+                                        'Phân bố: ',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16.0),
+                                        softWrap: true,
+                                      ),
+                                      Text(
+                                        '${plant['distributionArea']}',
+                                        style: TextStyle(fontSize: 16.0),
+                                        softWrap: true,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              )
                             : Column(
-                          children: [
-                            10.height,
-                            Wrap(
-                              children: [
-                                Text(
-                                  'Phân bố: ',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16.0),
-                                  softWrap: true,
-                                ),
-                                Text(
-                                  'Chưa có thông tin!',
-                                  style: TextStyle(fontSize: 16.0),
-                                  softWrap: true,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                                children: [
+                                  10.height,
+                                  Wrap(
+                                    children: [
+                                      Text(
+                                        'Phân bố: ',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16.0),
+                                        softWrap: true,
+                                      ),
+                                      Text(
+                                        'Chưa có thông tin!',
+                                        style: TextStyle(fontSize: 16.0),
+                                        softWrap: true,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                         (plant['size'] != null)
                             ? Column(
-                          children: [
-                            10.height,
-                            Wrap(
-                              children: [
-                                Text(
-                                  'Kích thước: ',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16.0),
-                                  softWrap: true,
-                                ),
-                                Text(
-                                  '${plant['size']}' ?? 'size',
-                                  style: TextStyle(fontSize: 16.0),
-                                  softWrap: true,
-                                ),
-                              ],
-                            ),
-                          ],
-                        )
+                                children: [
+                                  10.height,
+                                  Wrap(
+                                    children: [
+                                      Text(
+                                        'Kích thước: ',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16.0),
+                                        softWrap: true,
+                                      ),
+                                      Text(
+                                        '${plant['size']}',
+                                        style: TextStyle(fontSize: 16.0),
+                                        softWrap: true,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              )
                             : Column(
-                          children: [
-                            10.height,
-                            Wrap(
-                              children: [
-                                Text(
-                                  'Kích thước: ',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16.0),
-                                  softWrap: true,
-                                ),
-                                Text(
-                                  'Chưa có thông tin!',
-                                  style: TextStyle(fontSize: 16.0),
-                                  softWrap: true,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                                children: [
+                                  10.height,
+                                  Wrap(
+                                    children: [
+                                      Text(
+                                        'Kích thước: ',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16.0),
+                                        softWrap: true,
+                                      ),
+                                      Text(
+                                        'Chưa có thông tin!',
+                                        style: TextStyle(fontSize: 16.0),
+                                        softWrap: true,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                         (plant['fruitTime'] != null)
                             ? Column(
-                          children: [
-                            10.height,
-                            Wrap(
-                              children: [
-                                Text(
-                                  'Năm ra hoa: ',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16.0),
-                                  softWrap: true,
-                                ),
-                                Text(
-                                  '${plant['fruitTime']}' ?? 'fruitTime',
-                                  style: TextStyle(fontSize: 16.0),
-                                  softWrap: true,
-                                ),
-                              ],
-                            ),
-                          ],
-                        )
+                                children: [
+                                  10.height,
+                                  Wrap(
+                                    children: [
+                                      Text(
+                                        'Năm ra hoa: ',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16.0),
+                                        softWrap: true,
+                                      ),
+                                      Text(
+                                        '${plant['fruitTime']}',
+                                        style: TextStyle(fontSize: 16.0),
+                                        softWrap: true,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              )
                             : Column(
-                          children: [
-                            10.height,
-                            Wrap(
-                              children: [
-                                Text(
-                                  'Năm ra hoa: ',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16.0),
-                                  softWrap: true,
-                                ),
-                                Text(
-                                  'Chưa có thông tin!',
-                                  style: TextStyle(fontSize: 16.0),
-                                  softWrap: true,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                                children: [
+                                  10.height,
+                                  Wrap(
+                                    children: [
+                                      Text(
+                                        'Năm ra hoa: ',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16.0),
+                                        softWrap: true,
+                                      ),
+                                      Text(
+                                        'Chưa có thông tin!',
+                                        style: TextStyle(fontSize: 16.0),
+                                        softWrap: true,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                         (plant['scienceName'] != null)
                             ? Column(
-                          children: [
-                            10.height,
-                            Wrap(
-                              children: [
-                                Text(
-                                  'Tên khoa học: ',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16.0),
-                                  softWrap: true,
-                                ),
-                                Text(
-                                  '${plant['scienceName']}' ??
-                                      'scienceName',
-                                  style: TextStyle(fontSize: 16.0),
-                                  softWrap: true,
-                                ),
-                              ],
-                            ),
-                          ],
-                        )
+                                children: [
+                                  10.height,
+                                  Wrap(
+                                    children: [
+                                      Text(
+                                        'Tên khoa học: ',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16.0),
+                                        softWrap: true,
+                                      ),
+                                      Text(
+                                        '${plant['scienceName']}',
+                                        style: TextStyle(fontSize: 16.0),
+                                        softWrap: true,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              )
                             : Column(
-                          children: [
-                            10.height,
-                            Wrap(
-                              children: [
-                                Text(
-                                  'Tên khoa học: ',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16.0),
-                                  softWrap: true,
-                                ),
-                                Text(
-                                  'Chưa có thông tin!',
-                                  style: TextStyle(fontSize: 16.0),
-                                  softWrap: true,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                                children: [
+                                  10.height,
+                                  Wrap(
+                                    children: [
+                                      Text(
+                                        'Tên khoa học: ',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16.0),
+                                        softWrap: true,
+                                      ),
+                                      Text(
+                                        'Chưa có thông tin!',
+                                        style: TextStyle(fontSize: 16.0),
+                                        softWrap: true,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                         (plant['genus'] != null)
                             ? Column(
-                          children: [
-                            10.height,
-                            Wrap(
-                              children: [
-                                Text(
-                                  'Chi: ',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16.0),
-                                  softWrap: true,
-                                ),
-                                Text(
-                                  '${plant['genus']}' ?? 'fruitTime',
-                                  style: TextStyle(fontSize: 16.0),
-                                  softWrap: true,
-                                ),
-                              ],
-                            ),
-                          ],
-                        )
+                                children: [
+                                  10.height,
+                                  Wrap(
+                                    children: [
+                                      Text(
+                                        'Chi: ',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16.0),
+                                        softWrap: true,
+                                      ),
+                                      Text(
+                                        '${plant['genus']}',
+                                        style: TextStyle(fontSize: 16.0),
+                                        softWrap: true,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              )
                             : Column(
-                          children: [
-                            10.height,
-                            Wrap(
-                              children: [
-                                Text(
-                                  'Chi: ',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16.0),
-                                  softWrap: true,
-                                ),
-                                Text(
-                                  'Chưa có thông tin!',
-                                  style: TextStyle(fontSize: 16.0),
-                                  softWrap: true,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                                children: [
+                                  10.height,
+                                  Wrap(
+                                    children: [
+                                      Text(
+                                        'Chi: ',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16.0),
+                                        softWrap: true,
+                                      ),
+                                      Text(
+                                        'Chưa có thông tin!',
+                                        style: TextStyle(fontSize: 16.0),
+                                        softWrap: true,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                         (plant['discoverer'] != null)
                             ? Column(
-                          children: [
-                            10.height,
-                            Wrap(
-                              children: [
-                                Text(
-                                  'Người khám phá: ',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16.0),
-                                  softWrap: true,
-                                ),
-                                Text(
-                                  '${plant['discoverer']}' ?? 'scienceName',
-                                  style: TextStyle(fontSize: 16.0),
-                                  softWrap: true,
-                                ),
-                              ],
-                            ),
-                          ],
-                        )
+                                children: [
+                                  10.height,
+                                  Wrap(
+                                    children: [
+                                      Text(
+                                        'Người khám phá: ',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16.0),
+                                        softWrap: true,
+                                      ),
+                                      Text(
+                                        '${plant['discoverer']}',
+                                        style: TextStyle(fontSize: 16.0),
+                                        softWrap: true,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              )
                             : Column(
-                          children: [
-                            10.height,
-                            Wrap(
-                              children: [
-                                Text(
-                                  'Người khám phá: ',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16.0),
-                                  softWrap: true,
-                                ),
-                                Text(
-                                  'Chưa có thông tin!',
-                                  style: TextStyle(fontSize: 16.0),
-                                  softWrap: true,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                                children: [
+                                  10.height,
+                                  Wrap(
+                                    children: [
+                                      Text(
+                                        'Người khám phá: ',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16.0),
+                                        softWrap: true,
+                                      ),
+                                      Text(
+                                        'Chưa có thông tin!',
+                                        style: TextStyle(fontSize: 16.0),
+                                        softWrap: true,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                         (plant['species'] != null)
                             ? Column(
-                          children: [
-                            10.height,
-                            Wrap(
-                              children: [
-                                Text(
-                                  'Giống loài: ',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16.0),
-                                  softWrap: true,
-                                ),
-                                Text(
-                                  '${plant['species']}' ?? 'scienceName',
-                                  style: TextStyle(fontSize: 16.0),
-                                  softWrap: true,
-                                ),
-                              ],
-                            ),
-                          ],
-                        )
+                                children: [
+                                  10.height,
+                                  Wrap(
+                                    children: [
+                                      Text(
+                                        'Giống loài: ',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16.0),
+                                        softWrap: true,
+                                      ),
+                                      Text(
+                                        '${plant['species']}',
+                                        style: TextStyle(fontSize: 16.0),
+                                        softWrap: true,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              )
                             : Column(
-                          children: [
-                            10.height,
-                            Wrap(
-                              children: [
-                                Text(
-                                  'Giống loài: ',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16.0),
-                                  softWrap: true,
-                                ),
-                                Text(
-                                  'Chưa có thông tin!',
-                                  style: TextStyle(fontSize: 16.0),
-                                  softWrap: true,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                                children: [
+                                  10.height,
+                                  Wrap(
+                                    children: [
+                                      Text(
+                                        'Giống loài: ',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16.0),
+                                        softWrap: true,
+                                      ),
+                                      Text(
+                                        'Chưa có thông tin!',
+                                        style: TextStyle(fontSize: 16.0),
+                                        softWrap: true,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                         (plant['uses'] != null)
                             ? Column(
-                          children: [
-                            10.height,
-                            Wrap(
-                              children: [
-                                Text(
-                                  'Công dụng: ',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16.0),
-                                  softWrap: true,
-                                ),
-                                Text(
-                                  '${plant['uses']}' ?? 'uses',
-                                  style: TextStyle(
-                                    fontSize: 16,
+                                children: [
+                                  10.height,
+                                  Wrap(
+                                    children: [
+                                      Text(
+                                        'Công dụng: ',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16.0),
+                                        softWrap: true,
+                                      ),
+                                      Text(
+                                        '${plant['uses']}',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        )
+                                ],
+                              )
                             : Column(
-                          children: [
-                            10.height,
-                            Wrap(
-                              children: [
-                                Text(
-                                  'Công dụng: ',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16.0),
-                                  softWrap: true,
-                                ),
-                                Text(
-                                  'Chưa có thông tin!',
-                                  style: TextStyle(
-                                    fontSize: 16,
+                                children: [
+                                  10.height,
+                                  Wrap(
+                                    children: [
+                                      Text(
+                                        'Công dụng: ',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16.0),
+                                        softWrap: true,
+                                      ),
+                                      Text(
+                                        'Chưa có thông tin!',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                                ],
+                              ),
                         (plant['conservationStatus'] != null)
                             ? Column(
-                          children: [
-                            10.height,
-                            Wrap(
-                              children: [
-                                Text(
-                                  'Tình trạng bảo tồn: ',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16.0),
-                                  softWrap: true,
-                                ),
-                                Text(
-                                  '${plant['conservationStatus']}' ??
-                                      'conservationStatus',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    // Kích thước chữ
+                                children: [
+                                  10.height,
+                                  Wrap(
+                                    children: [
+                                      Text(
+                                        'Tình trạng bảo tồn: ',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16.0),
+                                        softWrap: true,
+                                      ),
+                                      Text(
+                                        '${plant['conservationStatus']}',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          // Kích thước chữ
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        )
+                                ],
+                              )
                             : Column(
-                          children: [
-                            10.height,
-                            Wrap(
-                              children: [
-                                Text(
-                                  'Tình trạng bảo tồn: ',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16.0),
-                                  softWrap: true,
-                                ),
-                                Text(
-                                  'Chưa có thông tin!',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    // Kích thước chữ
+                                children: [
+                                  10.height,
+                                  Wrap(
+                                    children: [
+                                      Text(
+                                        'Tình trạng bảo tồn: ',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16.0),
+                                        softWrap: true,
+                                      ),
+                                      Text(
+                                        'Chưa có thông tin!',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          // Kích thước chữ
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                                ],
+                              ),
                         10.height,
-                        Text(
-                          '${plant['description']}' ?? 'Description',
-                          style: TextStyle(
-                            color: Colors.black.withOpacity(0.5),
-                            // Độ mờ màu chữ
-                            fontSize: 16,
-                            // Kích thước chữ
-                            fontWeight: FontWeight.normal, // Trọng lượng chữ
-                          ),
+                        // Text(
+                        //   '${plant['description']}' ?? 'Description',
+                        //   style: TextStyle(
+                        //     color: Colors.black.withOpacity(0.5),
+                        //     // Độ mờ màu chữ
+                        //     fontSize: 16,
+                        //     // Kích thước chữ
+                        //     fontWeight: FontWeight.normal, // Trọng lượng chữ
+                        //   ),
+                        // ),
+                        Html(
+                          anchorKey: staticAnchorKey,
+                          data: plant['description'],
+                          style: {
+                            "p": Style(
+                              color: Colors.black.withOpacity(0.5),
+                              fontSize: FontSize(16),
+                              // Kích thước chữ
+                            ),
+                            "span": Style(
+                              backgroundColor: Colors.transparent,
+                              color: Colors.black.withOpacity(0.5),
+                              fontSize: FontSize(16),
+                              // Kích thước chữ
+                            ),
+                          },
                         ),
-
                       ],
                     ),
                   ),

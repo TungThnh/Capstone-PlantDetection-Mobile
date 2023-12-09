@@ -164,13 +164,14 @@ class _HDPlantFragmentState extends State<HDPlantFragment> {
                         ),
                         Container(
                           width: double.infinity,
-                          padding: EdgeInsets.only(top:16, left: 16, right: 16),
+                          padding:
+                              EdgeInsets.only(top: 16, left: 16, right: 16),
                           child: ElevatedButton(
                             onPressed: () async {
                               setState(() {
                                 data = [];
                                 pageNum =
-                                0; // Xóa dữ liệu hiện tại bằng cách gán danh sách thành mảng rỗng
+                                    0; // Xóa dữ liệu hiện tại bằng cách gán danh sách thành mảng rỗng
                                 isSearching = true;
                                 isLastPage = false;
                               });
@@ -178,18 +179,12 @@ class _HDPlantFragmentState extends State<HDPlantFragment> {
                                   apiUrl, PlantSearchController.text, pageNum);
                             },
                             style: ButtonStyle(
-                              minimumSize: MaterialStateProperty
-                                  .resolveWith(
-                                      (states) =>
-                                      Size(200,
-                                          50)),
-                              shape: MaterialStateProperty
-                                  .all<
+                              minimumSize: MaterialStateProperty.resolveWith(
+                                  (states) => Size(200, 50)),
+                              shape: MaterialStateProperty.all<
                                   RoundedRectangleBorder>(
                                 RoundedRectangleBorder(
-                                  borderRadius:
-                                  BorderRadius
-                                      .circular(
+                                  borderRadius: BorderRadius.circular(
                                       12.0), // Điều chỉnh giá trị theo ý muốn
                                 ),
                               ),
@@ -197,7 +192,10 @@ class _HDPlantFragmentState extends State<HDPlantFragment> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.search, color: Colors.black,),
+                                Icon(
+                                  Icons.search,
+                                  color: Colors.black,
+                                ),
                                 10.width,
                                 Text(
                                   'Search',
@@ -248,12 +246,23 @@ class _HDPlantFragmentState extends State<HDPlantFragment> {
                                                             BorderRadius
                                                                 .circular(12),
                                                         // Điều chỉnh giá trị theo ý muốn
-                                                        child: Image.network(
-                                                          plant['images'][0]
-                                                                  ['url'] ??
-                                                              'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Image_not_available.png/640px-Image_not_available.png',
-                                                          fit: BoxFit.cover,
-                                                        ),
+                                                        child: plant['images'] !=
+                                                                    null &&
+                                                                plant['images']
+                                                                    .isNotEmpty
+                                                            ? Image.network(
+                                                                plant['images']
+                                                                            [0][
+                                                                        'url'] ??
+                                                                    'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Image_not_available.png/640px-Image_not_available.png',
+                                                                fit: BoxFit
+                                                                    .cover,
+                                                              )
+                                                            : Image.network(
+                                                                'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Image_not_available.png/640px-Image_not_available.png',
+                                                                fit: BoxFit
+                                                                    .cover,
+                                                              ),
                                                       )),
                                                 ),
                                                 Container(
@@ -264,12 +273,13 @@ class _HDPlantFragmentState extends State<HDPlantFragment> {
                                                       Flexible(
                                                         flex: 1,
                                                         child: Text(
-                                                          '${plant['name']}',
+                                                          '${plant['name'] ?? 'name'}',
                                                           style: TextStyle(
                                                               fontWeight:
                                                                   FontWeight
                                                                       .bold,
                                                               fontSize: 18.0),
+                                                          overflow: TextOverflow.ellipsis,
                                                         ),
                                                       ),
                                                       Flexible(
@@ -404,6 +414,7 @@ class _HDPlantFragmentState extends State<HDPlantFragment> {
           isLoading = false;
           final List<Map<String, dynamic>> body =
               jsonResponse['data'].cast<Map<String, dynamic>>();
+          print(body);
           data = body;
           isDataAvailable = data.isNotEmpty;
         });
@@ -443,7 +454,7 @@ class _HDPlantFragmentState extends State<HDPlantFragment> {
         isLoadingMoreData = false;
         final Map<String, dynamic> jsonResponse = json.decode(response.body);
         setState(() {
-          if (pageNum >= totalRow/10 - 1) isLastPage = true;
+          if (pageNum >= totalRow / 10 - 1) isLastPage = true;
           final List<Map<String, dynamic>> newData =
               jsonResponse['data'].cast<Map<String, dynamic>>();
           data.addAll(newData);

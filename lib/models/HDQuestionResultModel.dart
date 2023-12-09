@@ -16,7 +16,7 @@ class HDQuestionResultModel {
   factory HDQuestionResultModel.fromJson(Map<String, dynamic> json) {
     return HDQuestionResultModel(
       question: HDQuestionModel.fromJson(json['question']),
-      selectedAnswer: json['selectedAnswer'],
+      selectedAnswer: json['selectedAnswer'] ?? 'Not chosen',
       // Các trường khác nếu có
     );
   }

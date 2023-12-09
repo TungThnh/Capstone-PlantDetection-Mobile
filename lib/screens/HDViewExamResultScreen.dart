@@ -42,7 +42,7 @@ class _HDViewExamResultScreenState extends State<HDViewExamResultScreen> {
         'Authorization': 'Bearer $accessToken',
       };
       final response = await http.get(
-        Uri.parse(apiUrl + '/api/exams/$examId/calculate-score'),
+        Uri.parse(apiUrl + '/api/exams/$examId/results'),
         headers: bearerHeaders,
       );
       if (response.statusCode == 200) {
@@ -61,7 +61,7 @@ class _HDViewExamResultScreenState extends State<HDViewExamResultScreen> {
             newQuestionResults.add(newQuestionResult);
           }
           setState(() {
-            score = jsonMap['score'];
+            score = jsonMap['score'] ?? 0.0;
             questions = newQuestions;
             questionResults = newQuestionResults;
           });
@@ -122,7 +122,7 @@ class _HDViewExamResultScreenState extends State<HDViewExamResultScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
-                    'Score: $score/10.0',
+                    'Score: ${score}/10.0',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),

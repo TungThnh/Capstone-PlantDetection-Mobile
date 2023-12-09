@@ -1,6 +1,5 @@
-import 'package:carousel_slider/carousel_slider.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:nb_utils/nb_utils.dart';
 
 import '../utils/MIAColors.dart';
@@ -62,6 +61,7 @@ class _HDViewResultScreenState extends State<HDViewResultScreen> {
   }
 
   Widget _buildPlantInfo(Map<String, dynamic> plant) {
+    final staticAnchorKey = GlobalKey();
     return SingleChildScrollView(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -85,11 +85,15 @@ class _HDViewResultScreenState extends State<HDViewResultScreen> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   // Điều chỉnh giá trị theo ý muốn
-                  child: Image.network(
-                    plant['images'][_currentImageIndex]['url'] ??
-                        'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Image_not_available.png/640px-Image_not_available.png',
-                    fit: BoxFit.cover,
-                  ),
+                  child: plant['images'] != null && plant['images'].isNotEmpty
+                      ? Image.network(
+                          plant['images'][_currentImageIndex]['url'],
+                          fit: BoxFit.cover,
+                        )
+                      : Image.network(
+                          'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Image_not_available.png/640px-Image_not_available.png',
+                          fit: BoxFit.cover,
+                        ),
                 ),
               ),
             ),
@@ -154,13 +158,21 @@ class _HDViewResultScreenState extends State<HDViewResultScreen> {
                   // Căn lề bên trái
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Center(
-                      child: Text(
-                        '${plant['name']}' ?? 'name',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 24.0),
-                      ),
-                    ),
+                    (plant['name'] != null && plant['name'] != '')
+                        ? Center(
+                            child: Text(
+                              '${plant['name']}',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 24.0),
+                            ),
+                          )
+                        : Center(
+                            child: Text(
+                              'name',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 24.0),
+                            ),
+                          ),
                     10.height,
                     (plant['plantCategories'] != null)
                         ? Wrap(
@@ -204,8 +216,7 @@ class _HDViewResultScreenState extends State<HDViewResultScreen> {
                                         fontSize: 16.0),
                                   ),
                                   Text(
-                                    '${plant['livingCondition']}' ??
-                                        'livingCondition',
+                                    '${plant['livingCondition']}',
                                     style: TextStyle(fontSize: 16.0),
                                     softWrap: true,
                                   )
@@ -245,7 +256,7 @@ class _HDViewResultScreenState extends State<HDViewResultScreen> {
                                 softWrap: true,
                               ),
                               Text(
-                                '${plant['ph']}' ?? 'ph',
+                                '${plant['ph']}',
                                 style: TextStyle(fontSize: 16.0),
                                 softWrap: true,
                               )
@@ -281,8 +292,7 @@ class _HDViewResultScreenState extends State<HDViewResultScreen> {
                                     softWrap: true,
                                   ),
                                   Text(
-                                    '${plant['distributionArea']}' ??
-                                        'distributionArea',
+                                    '${plant['distributionArea']}',
                                     style: TextStyle(fontSize: 16.0),
                                     softWrap: true,
                                   ),
@@ -325,7 +335,7 @@ class _HDViewResultScreenState extends State<HDViewResultScreen> {
                                     softWrap: true,
                                   ),
                                   Text(
-                                    '${plant['size']}' ?? 'size',
+                                    '${plant['size']}',
                                     style: TextStyle(fontSize: 16.0),
                                     softWrap: true,
                                   ),
@@ -368,7 +378,7 @@ class _HDViewResultScreenState extends State<HDViewResultScreen> {
                                     softWrap: true,
                                   ),
                                   Text(
-                                    '${plant['fruitTime']}' ?? 'fruitTime',
+                                    '${plant['fruitTime']}',
                                     style: TextStyle(fontSize: 16.0),
                                     softWrap: true,
                                   ),
@@ -411,7 +421,7 @@ class _HDViewResultScreenState extends State<HDViewResultScreen> {
                                     softWrap: true,
                                   ),
                                   Text(
-                                    '${plant['scienceName']}' ?? 'scienceName',
+                                    '${plant['scienceName']}',
                                     style: TextStyle(fontSize: 16.0),
                                     softWrap: true,
                                   ),
@@ -454,7 +464,7 @@ class _HDViewResultScreenState extends State<HDViewResultScreen> {
                                     softWrap: true,
                                   ),
                                   Text(
-                                    '${plant['genus']}' ?? 'fruitTime',
+                                    '${plant['genus']}',
                                     style: TextStyle(fontSize: 16.0),
                                     softWrap: true,
                                   ),
@@ -497,7 +507,7 @@ class _HDViewResultScreenState extends State<HDViewResultScreen> {
                                     softWrap: true,
                                   ),
                                   Text(
-                                    '${plant['discoverer']}' ?? 'scienceName',
+                                    '${plant['discoverer']}',
                                     style: TextStyle(fontSize: 16.0),
                                     softWrap: true,
                                   ),
@@ -540,7 +550,7 @@ class _HDViewResultScreenState extends State<HDViewResultScreen> {
                                     softWrap: true,
                                   ),
                                   Text(
-                                    '${plant['species']}' ?? 'scienceName',
+                                    '${plant['species']}',
                                     style: TextStyle(fontSize: 16.0),
                                     softWrap: true,
                                   ),
@@ -583,7 +593,7 @@ class _HDViewResultScreenState extends State<HDViewResultScreen> {
                                     softWrap: true,
                                   ),
                                   Text(
-                                    '${plant['uses']}' ?? 'uses',
+                                    '${plant['uses']}',
                                     style: TextStyle(
                                       fontSize: 16,
                                     ),
@@ -628,8 +638,7 @@ class _HDViewResultScreenState extends State<HDViewResultScreen> {
                                     softWrap: true,
                                   ),
                                   Text(
-                                    '${plant['conservationStatus']}' ??
-                                        'conservationStatus',
+                                    '${plant['conservationStatus']}',
                                     style: TextStyle(
                                       fontSize: 16,
                                       // Kích thước chữ
@@ -663,15 +672,22 @@ class _HDViewResultScreenState extends State<HDViewResultScreen> {
                             ],
                           ),
                     10.height,
-                    Text(
-                      '${plant['description']}' ?? 'Description',
-                      style: TextStyle(
-                        color: Colors.black.withOpacity(0.5),
-                        // Độ mờ màu chữ
-                        fontSize: 16,
-                        // Kích thước chữ
-                        fontWeight: FontWeight.normal, // Trọng lượng chữ
-                      ),
+                    Html(
+                      anchorKey: staticAnchorKey,
+                      data: plant['description'],
+                      style: {
+                        "p": Style(
+                          color: Colors.black.withOpacity(0.5),
+                          fontSize: FontSize(16),
+                          // Kích thước chữ
+                        ),
+                        "span": Style(
+                          backgroundColor: Colors.transparent,
+                          color: Colors.black.withOpacity(0.5),
+                          fontSize: FontSize(16),
+                          // Kích thước chữ
+                        ),
+                      },
                     ),
                   ],
                 ),

@@ -33,9 +33,9 @@ class _MIADashboardScreenState extends State<MIADashboardScreen> {
     } else if (selectedTab == 1) {
       return HDPlantFragment();
     } else if (selectedTab == 2) {
-      return MIASettingsFragment();
-    } else if (selectedTab == 3) {
       return HDGameFragment();
+    } else if (selectedTab == 3) {
+      return MIASettingsFragment();
     } else {
       return HDCameraFragment();
     }
