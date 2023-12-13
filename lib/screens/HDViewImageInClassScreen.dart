@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:http_parser/http_parser.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:nb_utils/nb_utils.dart';
 
 import '../providers/APIUrl.dart';
@@ -53,8 +54,97 @@ class _HDViewImageInClassScreenState extends State<HDViewImageInClassScreen> {
           ),
         ],
       ),
-      body: Center(
-        child: _image == null ? Text("Chưa có ảnh") : Image.file(_image!),
+      body: Column(
+        children: [
+          Expanded(
+            child: Center(
+              child: _image == null ? Text("Chưa có ảnh") : Image.file(_image!),
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Gọi hàm crop ảnh tại đây
+                    openImageCropper(_image!.path ?? '');
+                  },
+                  style: ButtonStyle(
+                    minimumSize: MaterialStateProperty.resolveWith(
+                            (states) => Size(80, 50)),
+                    shape: MaterialStateProperty.all<
+                        RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                            12.0), // Điều chỉnh giá trị theo ý muốn
+                      ),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.edit,
+                        color: Colors.black,
+                      ),
+                      10.width,
+                      Text(
+                        'Edit',
+                        style: TextStyle(
+                          color: Colors.black,
+                          // Đặt màu cho văn bản
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _image = widget.image;
+                    });
+                  },
+                  style: ButtonStyle(
+                    minimumSize: MaterialStateProperty.resolveWith(
+                            (states) => Size(120, 50)),
+                    shape: MaterialStateProperty.all<
+                        RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                            12.0), // Điều chỉnh giá trị theo ý muốn
+                      ),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.cancel,
+                        color: Colors.black,
+                      ),
+                      10.width,
+                      Text(
+                        'Cancel',
+                        style: TextStyle(
+                          color: Colors.black,
+                          // Đặt màu cho văn bản
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -110,5 +200,34 @@ class _HDViewImageInClassScreenState extends State<HDViewImageInClassScreen> {
 // Hàm để ẩn AlertDialog loading
   void hideLoadingDialog(BuildContext context) {
     Navigator.of(context, rootNavigator: true).pop('dialog');
+  }
+
+  Future<void> openImageCropper(String imagePath) async {
+    final croppedImage = await ImageCropper().cropImage(
+      sourcePath: imagePath,
+      aspectRatioPresets: [
+        CropAspectRatioPreset.square,
+        CropAspectRatioPreset.ratio3x2,
+        CropAspectRatioPreset.original,
+        CropAspectRatioPreset.ratio4x3,
+        CropAspectRatioPreset.ratio16x9
+      ],
+      androidUiSettings: AndroidUiSettings(
+        toolbarTitle: 'Crop Image',
+        toolbarColor: Colors.deepOrange,
+        toolbarWidgetColor: Colors.white,
+        initAspectRatio: CropAspectRatioPreset.original,
+        lockAspectRatio: false,
+      ),
+      iosUiSettings: IOSUiSettings(
+        title: 'Crop Image',
+        aspectRatioLockEnabled: false,
+      ),
+    );
+    if (croppedImage != null) {
+      setState(() {
+        _image = croppedImage;
+      });
+    }
   }
 }

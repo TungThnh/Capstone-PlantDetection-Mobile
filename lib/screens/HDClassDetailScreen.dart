@@ -8,6 +8,7 @@ import 'package:camera/camera.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:Detection/models/HDUserModel.dart';
+import 'package:html/parser.dart';
 import 'package:intl/intl.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:provider/provider.dart';
@@ -48,8 +49,15 @@ class _HDClassDetailScreenState extends State<HDClassDetailScreen> {
   Widget build(BuildContext context) {
     var nameController =
         TextEditingController(text: classModel!.name ?? 'Name');
+
+    String htmlContent = classModel?.description ?? 'Description';
+    // Parse HTML and get the text content
+    var document = parse(htmlContent);
+    String descriptionContent = document.body?.text ?? '';
+    // Create a TextEditingController with the extracted text content
     var descriptionController =
-        TextEditingController(text: classModel?.description ?? 'Description');
+        TextEditingController(text: descriptionContent ?? 'Description');
+
     var createAtController = TextEditingController(
       text: classModel?.createAt != null
           ? DateFormat('dd-MM-yyyy')

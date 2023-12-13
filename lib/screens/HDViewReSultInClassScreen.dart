@@ -715,7 +715,7 @@ class _HDViewResultInClassScreenState extends State<HDViewResultInClassScreen> {
                   fontSize: 16.0),
             ),
           ),
-          (estimates != [])
+          (estimates.isEmpty)
               ? Center(
                   child: Padding(
                     padding: EdgeInsets.only(bottom: 24.0),
@@ -787,7 +787,7 @@ class _HDViewResultInClassScreenState extends State<HDViewResultInClassScreen> {
                           Flexible(
                             flex: 1,
                             child: Text(
-                              '${(estimate['confidence'] * 100).toStringAsFixed(2)}%',
+                              '${(estimate['confidence'] * 100).toStringAsFixed(0)}%',
                               style: TextStyle(
                                   fontWeight: FontWeight.bold, fontSize: 18.0),
                             ),

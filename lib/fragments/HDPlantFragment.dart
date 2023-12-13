@@ -414,7 +414,6 @@ class _HDPlantFragmentState extends State<HDPlantFragment> {
           isLoading = false;
           final List<Map<String, dynamic>> body =
               jsonResponse['data'].cast<Map<String, dynamic>>();
-          print(body);
           data = body;
           isDataAvailable = data.isNotEmpty;
         });
