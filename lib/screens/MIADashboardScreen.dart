@@ -29,9 +29,9 @@ class _MIADashboardScreenState extends State<MIADashboardScreen> {
 
   Widget getFragment() {
     if (selectedTab == 0) {
-      return HDClassFragment();
-    } else if (selectedTab == 1) {
       return HDPlantFragment();
+    } else if (selectedTab == 1) {
+      return HDClassFragment();
     } else if (selectedTab == 2) {
       return HDGameFragment();
     } else if (selectedTab == 3) {

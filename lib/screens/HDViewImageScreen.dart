@@ -68,9 +68,8 @@ class _HDViewImageScreenState extends State<HDViewImageScreen> {
                   },
                   style: ButtonStyle(
                     minimumSize: MaterialStateProperty.resolveWith(
-                            (states) => Size(80, 50)),
-                    shape: MaterialStateProperty.all<
-                        RoundedRectangleBorder>(
+                        (states) => Size(80, 50)),
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                       RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(
                             12.0), // Điều chỉnh giá trị theo ý muốn
@@ -97,7 +96,8 @@ class _HDViewImageScreenState extends State<HDViewImageScreen> {
                     ],
                   ),
                 ),
-              ),Padding(
+              ),
+              Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: ElevatedButton(
                   onPressed: () {
@@ -107,9 +107,8 @@ class _HDViewImageScreenState extends State<HDViewImageScreen> {
                   },
                   style: ButtonStyle(
                     minimumSize: MaterialStateProperty.resolveWith(
-                            (states) => Size(120, 50)),
-                    shape: MaterialStateProperty.all<
-                        RoundedRectangleBorder>(
+                        (states) => Size(120, 50)),
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                       RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(
                             12.0), // Điều chỉnh giá trị theo ý muốn

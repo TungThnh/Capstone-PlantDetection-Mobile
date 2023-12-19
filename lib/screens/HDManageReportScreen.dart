@@ -98,9 +98,9 @@ class _HDManageReportScreenState extends State<HDManageReportScreen> {
             },
           ).paddingSymmetric(horizontal: 8),
           title: Padding(
-            padding: EdgeInsets.only(left: 96),
+            padding: EdgeInsets.only(left: 92),
             child: Text(
-              'Reports',
+              'Send data',
               style: TextStyle(
                 color: Colors.black, // Màu chữ
                 fontWeight: FontWeight.bold,

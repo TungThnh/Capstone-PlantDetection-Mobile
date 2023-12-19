@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:camera/camera.dart';
@@ -20,6 +21,7 @@ class _HDTakePhotoInClassScreenState extends State<HDTakePhotoInClassScreen> {
   late File? capturedImage = null;
 
   _HDTakePhotoInClassScreenState({required this.controller});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,18 +56,57 @@ class _HDTakePhotoInClassScreenState extends State<HDTakePhotoInClassScreen> {
               )
             else
               CameraPreview(controller),
-            SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                buildZoomButton(1.0, controller),
-                buildZoomButton(2.0, controller),
-                buildZoomButton(3.0, controller),
-                buildZoomButton(4.0, controller),
-                buildZoomButton(5.0, controller),
-                buildZoomButton(8.0, controller),
-              ],
-            ),
+            (capturedImage != null)
+                ? Padding(
+                    padding: const EdgeInsets.only(left: 16, right: 16),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Gọi hàm crop ảnh tại đây
+                        openImageCropper(capturedImage!.path ?? '');
+                      },
+                      style: ButtonStyle(
+                        minimumSize: MaterialStateProperty.resolveWith(
+                            (states) => Size(80, 40)),
+                        shape:
+                            MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                                12.0), // Điều chỉnh giá trị theo ý muốn
+                          ),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.edit,
+                            color: Colors.black,
+                          ),
+                          10.width,
+                          Text(
+                            'Edit',
+                            style: TextStyle(
+                              color: Colors.black,
+                              // Đặt màu cho văn bản
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      buildZoomButton(1.0, controller),
+                      buildZoomButton(2.0, controller),
+                      buildZoomButton(3.0, controller),
+                      buildZoomButton(4.0, controller),
+                      buildZoomButton(5.0, controller),
+                      buildZoomButton(8.0, controller),
+                    ],
+                  ),
             SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -230,6 +271,35 @@ class _HDTakePhotoInClassScreenState extends State<HDTakePhotoInClassScreen> {
   void dispose() {
     controller.dispose();
     super.dispose();
+  }
+
+  Future<void> openImageCropper(String imagePath) async {
+    final croppedImage = await ImageCropper().cropImage(
+      sourcePath: imagePath,
+      aspectRatioPresets: [
+        CropAspectRatioPreset.square,
+        CropAspectRatioPreset.ratio3x2,
+        CropAspectRatioPreset.original,
+        CropAspectRatioPreset.ratio4x3,
+        CropAspectRatioPreset.ratio16x9
+      ],
+      androidUiSettings: AndroidUiSettings(
+        toolbarTitle: 'Crop Image',
+        toolbarColor: Colors.deepOrange,
+        toolbarWidgetColor: Colors.white,
+        initAspectRatio: CropAspectRatioPreset.original,
+        lockAspectRatio: false,
+      ),
+      iosUiSettings: IOSUiSettings(
+        title: 'Crop Image',
+        aspectRatioLockEnabled: false,
+      ),
+    );
+    if (croppedImage != null) {
+      setState(() {
+        capturedImage = croppedImage;
+      });
+    }
   }
 }
 

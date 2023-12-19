@@ -374,14 +374,20 @@ class _HDClassDetailScreenState extends State<HDClassDetailScreen> {
                             } else if (response.statusCode == 423) {
                               Navigator.pop(context);
                               _showClassClosedDialog(context);
-                            } else {}
+                            } else if (response.statusCode == 406) {
+                              Navigator.pop(context);
+                              _showClassFullDialog(context);
+                            } else {
+                              Navigator.pop(context);
+                              _showClassErrorDialog(context);
+                            }
                           } catch (e) {}
                         },
                         style: ButtonStyle(
                           minimumSize: MaterialStateProperty.resolveWith(
-                                  (states) => Size(200, 50)),
-                          shape: MaterialStateProperty.all<
-                              RoundedRectangleBorder>(
+                              (states) => Size(200, 50)),
+                          shape:
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(
                                   12.0), // Điều chỉnh giá trị theo ý muốn
@@ -541,10 +547,12 @@ class _HDClassDetailScreenState extends State<HDClassDetailScreen> {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () async {
-                            await LeaveClass(apiUrl, classModel!.id, userProvider.accessToken);
+                            await LeaveClass(apiUrl, classModel!.id,
+                                userProvider.accessToken);
                           },
                           style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
+                            backgroundColor:
+                                MaterialStateProperty.all<Color>(Colors.red),
                             minimumSize: MaterialStateProperty.resolveWith(
                                 (states) => Size(200, 50)),
                             shape: MaterialStateProperty.all<
@@ -659,14 +667,12 @@ class _HDClassDetailScreenState extends State<HDClassDetailScreen> {
             headers: bearerHeaders);
         if (response.statusCode == 204) {
           Navigator.pop(context, true);
-          _showLeaveClassSuccessDialog(context);// Leave Class
+          _showLeaveClassSuccessDialog(context); // Leave Class
         } else {
           print('can not leave');
         }
-      } else {
-      }
-    } catch (e) {
-    }
+      } else {}
+    } catch (e) {}
   }
 
   void _showRequestSuccessDialog(BuildContext context) {
@@ -713,6 +719,45 @@ class _HDClassDetailScreenState extends State<HDClassDetailScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('The class has been closed!'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Đóng thông báo popup
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showClassFullDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+              'The class is full! You can no longer apply to join the class!'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Đóng thông báo popup
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showClassErrorDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Có gì đó không ổn! Hãy thử lại sau!'),
           actions: <Widget>[
             TextButton(
               child: Text('OK'),

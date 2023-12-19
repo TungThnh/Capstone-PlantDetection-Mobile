@@ -74,13 +74,12 @@ class _HDUpdateProfileScreenState extends State<HDUpdateProfileScreen> {
     phoneController = TextEditingController(text: currenUser?.phone ?? '');
     addressController = TextEditingController(text: currenUser?.address ?? '');
 
-    if (isFirstFetch){
+    if (isFirstFetch) {
       selectedDate =
           parseDate(currenUser?.dayOfBirth as String ?? '') ?? DateTime.now();
       dayOfBirthController = TextEditingController(
           text: DateFormat('dd/MM/yyyy').format(selectedDate) ?? '');
     }
-
 
     final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -154,7 +153,7 @@ class _HDUpdateProfileScreenState extends State<HDUpdateProfileScreen> {
                           Icons.person), //Thêm biểu tượng trước trường nhập
                     ),
                     validator: (value) {
-                      if (value!.isEmpty) {
+                      if (value!.isEmpty || value.trim() == '') {
                         return 'First Name is required';
                       }
                       return null;
@@ -174,7 +173,7 @@ class _HDUpdateProfileScreenState extends State<HDUpdateProfileScreen> {
                       prefixIcon: Icon(Icons.person),
                     ),
                     validator: (value) {
-                      if (value!.isEmpty) {
+                      if (value!.isEmpty || value.trim() == '') {
                         return 'Last Name is required';
                       }
                       return null;
@@ -194,7 +193,7 @@ class _HDUpdateProfileScreenState extends State<HDUpdateProfileScreen> {
                       prefixIcon: Icon(Icons.school),
                     ),
                     validator: (value) {
-                      if (value!.isEmpty) {
+                      if (value!.isEmpty || value.trim() == '') {
                         return 'College is required';
                       }
                       return null;
@@ -217,7 +216,7 @@ class _HDUpdateProfileScreenState extends State<HDUpdateProfileScreen> {
                       if (value!.isEmpty) {
                         return 'Phone is required';
                       }
-                      if (!isValidPhoneNumber(value)){
+                      if (!isValidPhoneNumber(value)) {
                         return 'Invalid phone number';
                       }
                       return null;
@@ -237,7 +236,7 @@ class _HDUpdateProfileScreenState extends State<HDUpdateProfileScreen> {
                       prefixIcon: Icon(Icons.home),
                     ),
                     validator: (value) {
-                      if (value!.isEmpty) {
+                      if (value!.isEmpty || value.trim() == '') {
                         return 'Address is required';
                       }
                       return null;
@@ -355,8 +354,9 @@ DateTime? parseDate(String inputDate) {
     return null;
   }
 }
+
 bool isValidPhoneNumber(String phoneNumber) {
   // Sử dụng biểu thức chính quy để kiểm tra xem chuỗi có 10 chữ số không
-  RegExp regExp = RegExp(r'^[0-9]{10}$');
+  RegExp regExp = RegExp(r'^0(3[2-9]|5[6-8]|7[0-9]|8[1-6]|9[0-8])\d{7}$');
   return regExp.hasMatch(phoneNumber);
 }
